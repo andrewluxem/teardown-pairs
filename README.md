@@ -104,7 +104,7 @@ Side status is one of `planned`, `done`, `suspect`, `blocked`, `skipped`, `faile
 | 4 | wayback-salvage missing or older than 0.2.1 |
 | 5 | Playwright or Chromium missing (prints the install command) |
 
-wayback-salvage's own exits 2 and 3 come through as 2 and 3.
+wayback-salvage's own exits 2 and 3 come through as 2 and 3. Any other wayback-salvage failure during a capture (an exit 1, or output that is not JSON) marks the side it happened in `failed`, with wayback-salvage's message as the reason, and the run carries on with the next side and pack; a rerun retries that side.
 
 ## Politeness defaults
 

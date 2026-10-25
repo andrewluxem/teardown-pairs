@@ -2,13 +2,14 @@
 fixtures for snapshots, fetch and page; the version check rejects 0.1.0;
 wayback-salvage exits 2 and 3 propagate as teardown-pairs exits 2 and 3."""
 
+import io
 import json
 import os
 import unittest
 
 from support import quiet_main  # noqa: E402
-from support import (FakeClock, FakeRenderer, FakeRunner, TempDir, VERSION_OK, record_result, run, tp,
-                     ws_record)
+from support import (FakeClock, FakeRenderer, FakeRunner, TempDir, VERSION_OK, basic_facts, cdx_row, fake_fetch,
+                     fake_page, record_result, run, snapshots_result, tp, ws_record)
 
 
 def wrapper(out, runner, clock=None):
@@ -207,6 +208,145 @@ class MainExitTest(unittest.TestCase):
                            deps={"runner": FakeRunner({"--version": VERSION_OK}), "clock": clock.time,
                                  "sleep": clock.sleep})
         self.assertEqual(code, 4)
+
+
+EXIT1_STDERR = "error: could not reach https://web.archive.org/cdx/search/cdx: nodename nor servname provided\n"
+
+
+class SideErrorTest(unittest.TestCase):
+    """A wayback-salvage failure other than exit 2 or 3 fails the side it
+    happened in, with wayback-salvage's message as the reason, and the run
+    carries on with the next side and the next pack."""
+
+    CSV = ("brand,page_type,label,now_url,then_url,notes\n"
+           "Shop,category,jackets,https://www.shop.example/c/jackets,,\n"
+           "Shop,home,home,https://www.shop.example/,,\n")
+
+    def _snapshots(self, fail_url=None, fail_year=None, result=(1, "", EXIT1_STDERR)):
+        def snaps(argv):
+            url, frm = argv[1], argv[argv.index("--from") + 1]
+            if url == fail_url and (fail_year is None or frm.startswith(fail_year)):
+                return result
+            ts = "20261020120000" if frm.startswith("2026") else "20251024013522"
+            return snapshots_result([cdx_row(ts, original=url)])
+
+        return snaps
+
+    def _capture(self, out, snaps, renderer=None, extra=()):
+        clock = FakeClock()
+        renderer = renderer or FakeRenderer(clock=clock)
+        renderer.clock = clock
+        runner = FakeRunner({"--version": VERSION_OK, "snapshots": snaps, "fetch": fake_fetch, "page": fake_page},
+                            clock=clock)
+        csv_path = os.path.join(out, "pages.csv")
+        with open(csv_path, "w", encoding="utf-8") as fh:
+            fh.write(self.CSV)
+        stderr = io.StringIO()
+        code = quiet_main(["capture", csv_path, "--date", "2026-10-24", "-o", os.path.join(out, "o"),
+                           "--wayback-salvage", __file__] + list(extra),
+                          deps={"runner": runner, "renderer": renderer, "clock": clock.time, "sleep": clock.sleep,
+                                "stderr": stderr})
+        return code, renderer, stderr.getvalue()
+
+    def _pack(self, out, page_type, label):
+        path = os.path.join(out, "o", "shop", page_type, label, "2025-10-24", "pack.json")
+        with open(path, encoding="utf-8") as fh:
+            return json.load(fh)
+
+    def test_then_lookup_exit_1_fails_only_that_side(self):
+        with TempDir() as out:
+            code, renderer, stderr = self._capture(out, self._snapshots("https://www.shop.example/c/jackets", "2025"))
+            self.assertEqual(code, 0, stderr)
+            self.assertNotIn("Traceback", stderr)
+            pack = self._pack(out, "category", "jackets")
+            then = pack["sides"]["then"]
+            self.assertEqual(then["status"], "failed")
+            self.assertIn("nodename nor servname provided", then["reason"])
+            self.assertIn("wayback-salvage snapshots exited 1", then["reason"])
+            self.assertEqual(then["attempts"], [])
+            self.assertIn("finished_at", then)
+            self.assertEqual(pack["sides"]["now-live"]["status"], "done")
+            self.assertEqual(pack["sides"]["now-archive"]["status"], "done")
+            self.assertEqual(pack["status"], "incomplete")
+            home = self._pack(out, "home", "home")
+            self.assertEqual({s: v["status"] for s, v in home["sides"].items()},
+                             {"then": "done", "now-live": "done", "now-archive": "done"})
+            self.assertEqual([l[1] for l in renderer.loads].count("archive"), 3)
+            with open(os.path.join(out, "o", "shop", "category", "jackets", "2025-10-24", "diff.md"),
+                      encoding="utf-8") as fh:
+                self.assertIn("No comparison yet", fh.read())
+            self.assertTrue(os.path.exists(os.path.join(out, "o", "index.html")))
+
+    def test_now_archive_lookup_exit_1_fails_only_that_side(self):
+        with TempDir() as out:
+            code, _, stderr = self._capture(out, self._snapshots("https://www.shop.example/c/jackets", "2026"))
+            self.assertEqual(code, 0, stderr)
+            pack = self._pack(out, "category", "jackets")
+            self.assertEqual(pack["sides"]["now-archive"]["status"], "failed")
+            self.assertIn("nodename nor servname provided", pack["sides"]["now-archive"]["reason"])
+            self.assertEqual(pack["sides"]["then"]["status"], "done")
+            self.assertEqual(pack["sides"]["now-live"]["status"], "done")
+            self.assertEqual(self._pack(out, "home", "home")["status"], "complete")
+
+    def test_unparseable_output_fails_the_side_too(self):
+        with TempDir() as out:
+            code, _, stderr = self._capture(out, self._snapshots("https://www.shop.example/c/jackets", "2025",
+                                                                 result=(0, "not json", "")))
+            self.assertEqual(code, 0, stderr)
+            then = self._pack(out, "category", "jackets")["sides"]["then"]
+            self.assertEqual(then["status"], "failed")
+            self.assertIn("printed no JSON", then["reason"])
+
+    def test_error_after_a_suspect_attempt_keeps_the_attempt_and_its_evidence(self):
+        """The +/-7 capture is suspect, then the +/-30 lookup fails: the side
+        is failed with the wayback-salvage reason, the attempt stays recorded."""
+        url = "https://www.shop.example/c/jackets"
+
+        def snaps(argv):
+            frm = argv[argv.index("--from") + 1]
+            if argv[1] == url and frm == "20250924":
+                return 1, "", EXIT1_STDERR
+            ts = "20261020120000" if frm.startswith("2026") else "20251024013522"
+            return snapshots_result([cdx_row(ts, original=argv[1])])
+
+        with TempDir() as out:
+            clock = FakeClock()
+            renderer = FakeRenderer(clock=clock, archive_results=[
+                {"facts": basic_facts(title="Access Denied"), "main_status": 403}])
+            code, _, stderr = self._capture(out, snaps, renderer=renderer)
+            self.assertEqual(code, 0, stderr)
+            then = self._pack(out, "category", "jackets")["sides"]["then"]
+            self.assertEqual(then["status"], "failed")
+            self.assertIn("nodename nor servname provided", then["reason"])
+            self.assertEqual([a["outcome"] for a in then["attempts"]], ["suspect"])
+            cap_path = os.path.join(out, "o", "shop", "category", "jackets", "2025-10-24", "then", "capture.json")
+            with open(cap_path, encoding="utf-8") as fh:
+                cap = json.load(fh)
+            self.assertEqual(cap["status"], "failed")
+            self.assertEqual(cap["flags"]["suspect"]["signature"], "status-403")
+
+    def test_rerun_redoes_the_failed_side(self):
+        with TempDir() as out:
+            self._capture(out, self._snapshots("https://www.shop.example/c/jackets", "2025"))
+            code, renderer, stderr = self._capture(out, self._snapshots())
+            self.assertEqual(code, 0, stderr)
+            self.assertEqual([l[1] for l in renderer.loads], ["archive"])
+            pack = self._pack(out, "category", "jackets")
+            self.assertEqual(pack["sides"]["then"]["status"], "done")
+            self.assertNotIn("reason", pack["sides"]["then"])
+            self.assertEqual(pack["status"], "complete")
+
+    def test_exits_2_and_3_inside_a_side_still_stop_the_run(self):
+        for ws_code, tp_code in ((2, tp.EXIT_MAX_PAGES), (3, tp.EXIT_THROTTLED)):
+            with self.subTest(ws_code=ws_code), TempDir() as out:
+                result = (ws_code, "", "stopped: archive.org kept throttling or failing (x)\n")
+                code, renderer, _ = self._capture(out, self._snapshots("https://www.shop.example/c/jackets", "2025",
+                                                                       result=result))
+                self.assertEqual(code, tp_code)
+                self.assertEqual(renderer.loads, [])
+                pack = self._pack(out, "category", "jackets")
+                self.assertEqual(pack["sides"]["then"]["status"], "planned")
+                self.assertFalse(os.path.exists(os.path.join(out, "o", "shop", "home")))
 
 
 if __name__ == "__main__":

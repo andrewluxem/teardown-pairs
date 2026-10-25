@@ -2376,6 +2376,7 @@ class Capture:
             now_archive_candidates(self.ws, url, target)
         attempts, skipped, suspect_digests = 0, [], set()
         last = None
+        ws_error = None
         started = self.clock()
         try:
             async for cand in cands:
@@ -2421,11 +2422,16 @@ class Capture:
                                                   "HTTP 429s each, or a 429 page). Rerun later; do not lower --delay."
                                   % (DEGRADED_STOP, DEGRADED_429S))
                 pack.save()
+        except WaybackError as e:
+            # a failed lookup fails this side only; exits 2 and 3 are StopRun
+            ws_error = str(e)
         finally:
             await cands.aclose()
         state["skipped_candidates"] = skipped
         state["finished_at"] = iso_now()
-        if last is None:
+        if last is None and ws_error:
+            state.update(status="failed", reason=ws_error)
+        elif last is None:
             span = (WIDE_WINDOW if self.s.wide else WINDOWS[-1]) if mode == "then" else NOW_WINDOW
             where = "within +/-%d days of %s" % (span, target.isoformat()) if mode == "then" else \
                 "in the %d days up to %s" % (NOW_WINDOW, target.isoformat())
@@ -2436,6 +2442,8 @@ class Capture:
             status = "suspect" if outcome == "suspect" or (sus and outcome != "degraded") else "failed"
             reason = "%d attempt(s), last %s%s" % (attempts, outcome, ": %s" % (sus["detail"] if sus else
                                                                                res.get("error") or ""))
+            if ws_error:
+                status, reason = "failed", ws_error
             state.update(status=status, reason=reason, signature=(sus or {}).get("signature"))
             # keep the last attempt's screenshots and facts as evidence
             load = _load_record(res, outcome, sus)

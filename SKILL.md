@@ -39,7 +39,7 @@ python <repo>/scripts/teardown_pairs.py <subcommand> pages.csv [options]
 
 - `0` done. `1` usage or unexpected error. `4` wayback-salvage missing or older than 0.2.1. `5` Playwright or Chromium missing (the message has the install command).
 - `2` `--max-pages` reached, `3` stopped on archive throttling. Both are resumable: tell the user to rerun the same command later. Completed sides are never loaded again. Never lower `--delay` below 10 unless the user asks for it, and never retry in a loop.
-- A rerun redoes sides that are `planned` or `failed`. Sides that ended `suspect` (every archive candidate was a block or outage page) or `blocked` (the live page served a bot wall) are recorded outcomes, not retried; `pack.json` gives the signature.
+- A rerun redoes sides that are `planned` or `failed`. A side whose wayback-salvage lookup failed (anything but its exits 2 and 3) is `failed` with wayback-salvage's message as `reason` in `pack.json`; the run went on without it, and a rerun retries it. Sides that ended `suspect` (every archive candidate was a block or outage page) or `blocked` (the live page served a bot wall) are recorded outcomes, not retried; `pack.json` gives the signature.
 
 ## Rules
 
