@@ -39,7 +39,7 @@ import unicodedata
 import urllib.parse
 import urllib.robotparser
 
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 MIN_WS_VERSION = (0, 2, 2)  # 0.2.2 retries refused connections and resets, ending in exit 3
 MIN_WS_TEXT = ".".join(map(str, MIN_WS_VERSION))
 

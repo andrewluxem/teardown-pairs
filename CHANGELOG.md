@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.1 (24 Oct 2026)
+
+Fixes from the live acceptance run.
+
+- A wayback-salvage failure inside one side (its exit 1, or output that is not JSON) no longer ends the run with a traceback. In the live run it hit the REI category then-side lookup. The side is marked `failed` with wayback-salvage's message as its reason, and the run carries on with the next side and pack; a rerun retries the side. wayback-salvage exits 2 and 3 still stop the run with exit 2 and 3.
+- Requires wayback-salvage 0.2.2 or later (exit 4 otherwise). 0.2.2 retries refused connections and resets from archive.org and ends in exit 3 when they persist; 0.2.1 exited 1. The recorded `--json` fixtures come from 0.2.2, with two new records for its refused-connection exit 3 and a DNS-failure exit 1.
+- Archive replay loads: subrequests that fail with no HTTP status (connection refused, reset, timed out) count toward the degraded threshold together with HTTP 429s, more than 10 combined. A main document that fails that way makes the load degraded, not failed, so the next candidate is tried and three degraded loads in a row stop with exit 3. `capture.json` and the attempt records gain `network_errors`, `main_error` and `degraded_reason`.
+- Robots diagnostics: the now-live side in `pack.json` records `robots_url`, `robots_status` and `robots_error`, and the skip reason carries the HTTP status or the error, for example `robots-forbidden (HTTP 403)` or `robots-unreachable (connection reset)`.
+- A now-archive capture more than 7 days before `--date` gets a warning in `diff.md` and `compare.html` with both dates and the gap, like the then-side distance warning, and `now_distance_days` in the `diff.json` header. In the live run: REI men's jackets 20260924040234 (30 days before 2026-10-24) and Patagonia Better Sweater 20261007153002 (17 days). `diff` adds it to existing packs offline.
+
 ## 0.1.0 (24 Oct 2026)
 
 First release.
