@@ -71,7 +71,7 @@ open out/index.html
 - Candidates come from wayback-salvage `snapshots --status 200`, keeping 200 `text/html` rows. The window is +/-7 days, widened to +/-30 when that is empty, and to +/-90 only with `--wide`.
 - Nearest first; ties go to the earlier capture. `diff.md` warns when the capture is more than 7 days from the target.
 - A capture that loads as a block, challenge or outage page (suspect), or whose load is throttled (degraded: 429s and requests with no response), is replaced by the next candidate, up to 3 loads per side. Later candidates with the same digest as a suspect capture are skipped. Every attempt is recorded in `pack.json`.
-- now-archive uses the newest capture from 30 days before `--date` up to `--date`.
+- now-archive uses the newest capture from 30 days before `--date` up to `--date`. When that capture is more than 7 days before `--date`, `diff.md` and `compare.html` warn with both dates and the gap, because it may not be the page as it is now.
 
 ## Pack layout
 

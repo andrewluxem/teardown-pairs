@@ -1,9 +1,13 @@
 """Spec 3.12 case 8: diff logic on three fixture fact pairs (home, PLP, PDP)."""
 
 import copy
+import json
+import os
 import unittest
 
-from support import load_json, tp
+from support import load_json, quiet_main, tp  # noqa: E402
+from support import (FakeClock, FakeRenderer, FakeRunner, TempDir, VERSION_OK, cdx_row, fake_fetch, fake_page,
+                     snapshots_result)
 
 
 def pair(name):
@@ -207,6 +211,101 @@ class BuildDiffTest(unittest.TestCase):
 
     def test_no_then_no_comparisons(self):
         self.assertEqual(tp.build_diff(PACK, {"now-live": side("live", "2026-10-24")})["comparisons"], [])
+
+
+class StaleNowArchiveTest(unittest.TestCase):
+    """A now-archive capture more than 7 days before --date is warned about
+    the way a then capture far from its target is, with both dates and the
+    gap. Live run: REI men's jackets 20260924 (30 days before 2026-10-24),
+    Patagonia Better Sweater 20261007 (17 days)."""
+
+    PACK = dict(PACK, sides={"then": {"status": "done"}, "now-live": {"status": "done"},
+                             "now-archive": {"status": "done"}})
+
+    def comparisons(self, now_date):
+        sides = {"then": side("archive", "2025-10-24", 0), "now-live": side("live", "2026-10-24"),
+                 "now-archive": side("archive", now_date)}
+        diff = tp.build_diff(self.PACK, sides)
+        return diff, sides, {c["name"]: c for c in diff["comparisons"]}
+
+    def stale(self, comparison):
+        return [w for w in comparison["warnings"] if w.startswith("Now-archive capture")]
+
+    def test_live_run_examples(self):
+        for now_date, gap in (("2026-09-24", 30), ("2026-10-07", 17)):
+            with self.subTest(now_date=now_date):
+                _, _, comps = self.comparisons(now_date)
+                c = comps["then-vs-now-archive"]
+                self.assertEqual(self.stale(c), [
+                    "Now-archive capture is %d days before --date (%s vs 2026-10-24); retail merchandising changes "
+                    "weekly and seasonally, so it may not be the page as it is now." % (gap, now_date)])
+                self.assertEqual(c["header"]["now_distance_days"], gap)
+                self.assertEqual(self.stale(comps["then-vs-now-live"]), [])
+                self.assertIsNone(comps["then-vs-now-live"]["header"]["now_distance_days"])
+
+    def test_seven_days_is_not_stale_eight_is(self):
+        _, _, comps = self.comparisons("2026-10-17")
+        self.assertEqual(self.stale(comps["then-vs-now-archive"]), [])
+        self.assertEqual(comps["then-vs-now-archive"]["header"]["now_distance_days"], 7)
+        _, _, comps = self.comparisons("2026-10-16")
+        self.assertEqual(len(self.stale(comps["then-vs-now-archive"])), 1)
+        self.assertIn("8 days before --date", self.stale(comps["then-vs-now-archive"])[0])
+
+    def test_same_day_capture(self):
+        _, _, comps = self.comparisons("2026-10-24")
+        self.assertEqual(self.stale(comps["then-vs-now-archive"]), [])
+        self.assertEqual(comps["then-vs-now-archive"]["header"]["now_distance_days"], 0)
+
+    def test_diff_md_and_compare_html_show_it(self):
+        diff, sides, _ = self.comparisons("2026-09-24")
+        md = tp.render_diff_md(diff)
+        self.assertIn("- Now-archive capture is 30 days before --date (2026-09-24 vs 2026-10-24)", md)
+        self.assertIn("Now-archive capture 2026-09-24: 30 days before --date 2026-10-24.", md)
+        page = tp.render_compare_html("/nonexistent-pack", self.PACK, diff, sides)
+        self.assertIn('<ul class="notes warn"><li>Now-archive capture is 30 days before --date (2026-09-24 vs '
+                      '2026-10-24)', page)
+        self.assertEqual(page.count("Now-archive capture is 30 days"), 1)
+
+
+class StaleNowArchiveCommandTest(unittest.TestCase):
+    """capture writes the warning; diff, offline, adds it to a pack whose
+    diff.md and compare.html were written without it."""
+
+    def test_capture_then_offline_diff(self):
+        def snaps(argv):
+            frm = argv[argv.index("--from") + 1]
+            ts = "20260924040234" if frm.startswith("2026") else "20251026015232"
+            return snapshots_result([cdx_row(ts)])
+
+        with TempDir() as out:
+            clock = FakeClock()
+            renderer = FakeRenderer(clock=clock)
+            runner = FakeRunner({"--version": VERSION_OK, "snapshots": snaps, "fetch": fake_fetch, "page": fake_page},
+                                clock=clock)
+            code = quiet_main(["capture", "--url", "https://www.shop.example/", "--brand", "Shop", "--type", "home",
+                               "--label", "home", "--date", "2026-10-24", "--now-source", "archive", "-o", out,
+                               "--quiet", "--wayback-salvage", __file__],
+                              deps={"renderer": renderer, "runner": runner, "clock": clock.time, "sleep": clock.sleep})
+            self.assertEqual(code, 0)
+            pack = os.path.join(out, "shop", "home", "home", "2025-10-24")
+            warning = "Now-archive capture is 30 days before --date (2026-09-24 vs 2026-10-24)"
+            for name in ("diff.md", "compare.html"):
+                with open(os.path.join(pack, name), encoding="utf-8") as fh:
+                    self.assertIn(warning, fh.read())
+            # a pack from 0.1.0: same files, no warning yet
+            for name in ("diff.md", "compare.html", "diff.json"):
+                with open(os.path.join(pack, name), "w", encoding="utf-8") as fh:
+                    fh.write("old\n")
+            loads = len(renderer.loads)
+            code = quiet_main(["diff", out, "--json"], deps={"renderer": FakeRenderer(clock=clock), "runner": runner})
+            self.assertEqual(code, 0)
+            self.assertEqual(len(renderer.loads), loads)
+            for name in ("diff.md", "compare.html"):
+                with open(os.path.join(pack, name), encoding="utf-8") as fh:
+                    self.assertIn(warning, fh.read())
+            with open(os.path.join(pack, "diff.json"), encoding="utf-8") as fh:
+                c = json.load(fh)["comparisons"][0]
+            self.assertEqual(c["header"]["now_distance_days"], 30)
 
 
 class MarkdownTest(unittest.TestCase):

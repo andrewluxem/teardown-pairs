@@ -33,7 +33,7 @@ python <repo>/scripts/teardown_pairs.py <subcommand> pages.csv [options]
 3. **Read before you write.** Open each pack's `diff.md` and look at the screenshots (`compare-desktop.png`, `compare-mobile.png`, or the files under `then/`, `now-live/`, `now-archive/`) before writing any critique. `<out>/index.html` lists every pack with thumbnails and flags.
 4. **State the asymmetries.** Every `diff.md` header lists them (crawler view, mobile basis, live versus archive, distance from the target). Carry them into the critique in plain words, for example "then is the archive crawler's desktop view resized to mobile width; now is a live mobile device profile".
 5. **Holes are archive gaps, not design.** When a side's `failed` count is high (see `capture.json` or the diff header), blank boxes and missing images in its screenshots are assets the archive never stored. Do not critique them as design choices. `leaked` counts requests the replay tried to make to the live web, which were blocked.
-6. **Distance matters.** A then capture more than 7 days from the target is flagged in `diff.md`; retail merchandising is weekly and seasonal, so say how far off it is.
+6. **Distance matters.** A then capture more than 7 days from the target is flagged in `diff.md`, and so is a now-archive capture more than 7 days before `--date` (the newest capture can be weeks old); retail merchandising is weekly and seasonal, so say how far off each one is.
 
 ## Exit codes and reruns
 

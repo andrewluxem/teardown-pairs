@@ -1650,16 +1650,26 @@ def _side_shots(side: str, cap: dict) -> dict:
     return out
 
 
+def days_before(earlier, later):
+    """Whole days from one YYYY-MM-DD date to a later one, or None."""
+    try:
+        return (datetime.date.fromisoformat(later) - datetime.date.fromisoformat(earlier)).days
+    except (TypeError, ValueError):
+        return None
+
+
 def build_comparison(pack: dict, then: dict, now: dict, now_side: str, source: str) -> dict:
     tc, nc = then["capture"], now["capture"]
     row = pack.get("row") or {}
     tcap, ncap = tc.get("capture") or {}, nc.get("capture") or {}
     distance = tcap.get("distance_days")
+    # now-archive is the newest capture up to --date, which can be weeks old
+    now_distance = days_before(ncap.get("date"), pack.get("date")) if source == "archive" else None
     header = {
         "brand": row.get("brand"), "page_type": row.get("page_type"), "label": row.get("label"),
         "target_date": pack.get("target_date"), "then_date": tcap.get("date"), "then_timestamp": tcap.get("timestamp"),
         "now_date": ncap.get("date"), "now_timestamp": ncap.get("timestamp"), "distance_days": distance,
-        "now_source": source,
+        "now_distance_days": now_distance, "date": pack.get("date"), "now_source": source,
         "mobile_basis": {"then": tc.get("mobile_basis"), "now": nc.get("mobile_basis")},
         "flags": {"then": _flags(tc), "now": _flags(nc)},
         "requests": {"then": _req(tc), "now": _req(nc)},
@@ -1696,6 +1706,10 @@ def build_comparison(pack: dict, then: dict, now: dict, now_side: str, source: s
     if distance is not None and distance > WARN_DISTANCE_DAYS:
         warn.append("Then capture is %s from the target date (%s vs %s); retail merchandising changes weekly "
                     "and seasonally." % (days(distance), tcap.get("date"), pack.get("target_date")))
+    if now_distance is not None and now_distance > WARN_DISTANCE_DAYS:
+        warn.append("Now-archive capture is %s before --date (%s vs %s); retail merchandising changes weekly and "
+                    "seasonally, so it may not be the page as it is now." % (days(now_distance), ncap.get("date"),
+                                                                              pack.get("date")))
     for name, cap in (("Then", tc), ("Now-" + source, nc)):
         f = _flags(cap)
         if f["blocked"]:
@@ -1778,7 +1792,11 @@ def render_diff_md(diff: dict) -> str:
                                                                  h["requests"]["now"]["leaked"]))
         lines.append("")
         dist = h.get("distance_days")
-        lines.append("Target %s. Distance: %s." % (h["target_date"], days(dist) if dist is not None else "unknown"))
+        line = "Target %s. Distance: %s." % (h["target_date"], days(dist) if dist is not None else "unknown")
+        if h.get("now_distance_days") is not None:
+            line += " Now-archive capture %s: %s before --date %s." % (h["now_date"], days(h["now_distance_days"]),
+                                                                       h.get("date"))
+        lines.append(line)
         lines.append("")
         lines += ["### Asymmetries", ""] + ["- %s" % s for s in c["asymmetries"]] + [""]
         if c["warnings"]:
