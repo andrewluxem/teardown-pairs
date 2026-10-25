@@ -71,7 +71,7 @@ DEFAULT_DELAY = 20.0  # archive page loads, start to start
 WS_GAP = 6.0  # wayback-salvage subprocess calls, start to start
 LIVE_HOST_GAP = 30.0  # live loads per host
 DEFAULT_MAX_PAGES = 20
-DEGRADED_429S = 10  # more than this many 429s marks an archive load degraded
+DEGRADED_429S = 10  # more than this many 429s and no-response failures mark an archive load degraded
 DEGRADED_STOP = 3  # consecutive degraded loads stop the run (exit 3)
 
 DESKTOP = {"width": 1440, "height": 900}
@@ -974,6 +974,40 @@ def _first_line(e) -> str:
     return (str(e).strip().splitlines() or [""])[0][:300]
 
 
+# Error codes in Playwright's network errors (Node for route.fetch and
+# APIRequestContext, Chromium for page loads), in plain words.
+NETWORK_ERRORS = (
+    ("ECONNREFUSED", "connection refused"), ("ERR_CONNECTION_REFUSED", "connection refused"),
+    ("ECONNRESET", "connection reset"), ("ERR_CONNECTION_RESET", "connection reset"),
+    ("socket hang up", "connection reset"), ("EPIPE", "connection reset"),
+    ("ECONNABORTED", "connection aborted"), ("ERR_CONNECTION_CLOSED", "connection closed"),
+    ("ETIMEDOUT", "timed out"), ("ERR_TIMED_OUT", "timed out"), ("Timeout ", "timed out"),
+    ("ENOTFOUND", "DNS lookup failed"), ("EAI_AGAIN", "DNS lookup failed"), ("ERR_NAME_NOT_RESOLVED", "DNS lookup failed"),
+    ("EHOSTUNREACH", "host unreachable"), ("ENETUNREACH", "network unreachable"),
+)
+
+
+def network_error_text(text) -> str:
+    """Plain words for a network error ("connection reset"), else its first line."""
+    for code, phrase in NETWORK_ERRORS:
+        if code in (text or ""):
+            return phrase
+    return _first_line(text) or "no response"
+
+
+def degraded_verdict(http_429: int, network_errors: int, main_error) -> tuple:
+    """(degraded, reason) for an archive load. Throttling shows as 429s and
+    as requests that get no HTTP response at all (refused, reset, timed
+    out): more than DEGRADED_429S of them together, or a main document that
+    got no response, mark the load degraded."""
+    if main_error:
+        return True, "main document got no HTTP response (%s)" % network_error_text(main_error)
+    if http_429 + network_errors > DEGRADED_429S:
+        return True, "%d HTTP 429s and %d requests with no HTTP response (more than %d together)" % (
+            http_429, network_errors, DEGRADED_429S)
+    return False, None
+
+
 class _Tracker:
     """Request routing and accounting for one page load.
 
@@ -996,6 +1030,8 @@ class _Tracker:
         self.sem = asyncio.Semaphore(cfg.concurrency)
         self.budget_used = 0
         self.http_429 = 0
+        self.network_errors = 0  # archive fetches that got no HTTP status
+        self.main_error = None  # the main document's, when it got none
         self.tasks = []
         self.main_status = None
         self.main_response = None
@@ -1062,8 +1098,11 @@ class _Tracker:
                     return await self._abort(route, rec, "unrouted")
                 try:
                     resp = await route.fetch(url=target, max_redirects=0, timeout=self.cfg.request_timeout_ms)
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:  # noqa: BLE001  (refused, reset, timed out: no HTTP status)
                     rec["failure"] = _first_line(e)
+                    self.network_errors += 1
+                    if self._is_main(request):
+                        self.main_error = rec["failure"]
                     try:
                         await route.abort("failed")
                     except Exception:  # noqa: BLE001
@@ -1137,8 +1176,10 @@ class _Tracker:
             "aborted_media": aborted.get("media", 0),
             "unrouted": aborted.get("unrouted", 0),
             "http_429": self.http_429,
+            "network_errors": self.network_errors,
             "bytes": sum(r["bytes"] or 0 for r in recs),
             "main_status": self.main_status,
+            "main_error": self.main_error,
         }
 
     def write_log(self, side_dir: str) -> None:
@@ -1346,7 +1387,8 @@ class Renderer:
         await tracker.settle()
         res["requests"] = tracker.summary()
         res["main_status"] = tracker.main_status
-        res["degraded"] = tracker.kind == "archive" and tracker.http_429 > DEGRADED_429S
+        res["degraded"], res["degraded_reason"] = degraded_verdict(
+            tracker.http_429, tracker.network_errors, tracker.main_error) if tracker.kind == "archive" else (False, None)
         tracker.write_log(side_dir)
 
     async def load_archive(self, url: str, side_dir: str, viewports) -> dict:
@@ -1656,7 +1698,8 @@ def build_comparison(pack: dict, then: dict, now: dict, now_side: str, source: s
             warn.append("%s is flagged suspect (%s: %s)." % (name, f["suspect"].get("signature"),
                                                              f["suspect"].get("detail")))
         if f["degraded"]:
-            warn.append("%s load was degraded by archive throttling (more than %d HTTP 429s)." % (name, DEGRADED_429S))
+            warn.append("%s load was degraded by archive throttling (more than %d HTTP 429s and requests with no "
+                        "response, or a main document that got none)." % (name, DEGRADED_429S))
         if f["truncated"]:
             warn.append("%s full-page screenshot is truncated at %s px." % (name, format(MAX_SHOT_HEIGHT, ",")))
     return {
@@ -2168,14 +2211,16 @@ def _load_record(res: dict, outcome: str, sus) -> dict:
     return {
         "viewport": res.get("viewport"), "url": res.get("url"), "final_url": res.get("final_url"),
         "main_status": res.get("main_status"), "load_timeout": bool(res.get("load_timeout")),
-        "error": res.get("error"), "degraded": bool(res.get("degraded")), "outcome": outcome, "suspect": sus,
+        "error": res.get("error"), "degraded": bool(res.get("degraded")),
+        "degraded_reason": res.get("degraded_reason"), "outcome": outcome, "suspect": sus,
         "consent": res.get("consent"), "user_agent": res.get("user_agent"), "mobile_basis": res.get("mobile_basis"),
         "requests": res.get("requests") or {}, "screenshots": res.get("screenshots") or {},
     }
 
 
 def _sum_requests(loads) -> dict:
-    keys = ("requests", "failed", "aborted_budget", "leaked", "aborted_media", "unrouted", "http_429", "bytes")
+    keys = ("requests", "failed", "aborted_budget", "leaked", "aborted_media", "unrouted", "http_429",
+            "network_errors", "bytes")
     total = {k: 0 for k in keys}
     for load in loads:
         r = load.get("requests") or {}
@@ -2403,7 +2448,7 @@ class Capture:
                                                  "digest")}
                 attempt.update(url=aurl, started_at=iso_now(), seconds=round(self.clock() - t0, 1), outcome=outcome,
                                signature=(sus or {}).get("signature"), detail=(sus or {}).get("detail") or
-                               res.get("error"), main_status=res.get("main_status"),
+                               res.get("degraded_reason") or res.get("error"), main_status=res.get("main_status"),
                                requests=res.get("requests") or {})
                 state["attempts"].append(attempt)
                 self.consecutive_degraded = self.consecutive_degraded + 1 if outcome == "degraded" else 0
@@ -2420,7 +2465,8 @@ class Capture:
                                  % DEGRADED_STOP, finished_at=iso_now())
                     pack.save()
                     raise StopRun(EXIT_THROTTLED, "archive throttling: %d consecutive degraded loads (more than %d "
-                                                  "HTTP 429s each, or a 429 page). Rerun later; do not lower --delay."
+                                                  "HTTP 429s and requests with no response each, or a main document "
+                                                  "that got a 429 or no response). Rerun later; do not lower --delay."
                                   % (DEGRADED_STOP, DEGRADED_429S))
                 pack.save()
         except WaybackError as e:
@@ -2441,8 +2487,8 @@ class Capture:
         else:
             cand, res, outcome, sus = last
             status = "suspect" if outcome == "suspect" or (sus and outcome != "degraded") else "failed"
-            reason = "%d attempt(s), last %s%s" % (attempts, outcome, ": %s" % (sus["detail"] if sus else
-                                                                               res.get("error") or ""))
+            reason = "%d attempt(s), last %s%s" % (attempts, outcome, ": %s" % (
+                sus["detail"] if sus else res.get("degraded_reason") or res.get("error") or ""))
             if ws_error:
                 status, reason = "failed", ws_error
             state.update(status=status, reason=reason, signature=(sus or {}).get("signature"))

@@ -13,6 +13,8 @@ import http.server
 import json
 import os
 import re
+import socket
+import struct
 import threading
 import time
 import unittest
@@ -72,6 +74,18 @@ class FixtureServer:
                 path = urllib.parse.urlsplit(self.path).path
                 with server.lock:
                     server.paths.append(path)
+                if path.startswith("/img/reset-") or path == "/main-reset.html":
+                    # close with RST and no response: "read ECONNRESET"
+                    self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
+                    self.connection.close()
+                    self.close_connection = True
+                    return
+                if path.startswith("/hang/") or path == "/main-hang.html":
+                    time.sleep(2.5)  # longer than the test's request_timeout_ms
+                    try:
+                        return self._send(200, "image/png", png_bytes(20, 20))
+                    except OSError:
+                        return
                 if path.startswith("/img/t-"):
                     return self._send(429, "text/plain", b"slow down")
                 if path.startswith("/img/") and path.endswith(".png"):
@@ -97,6 +111,11 @@ class FixtureServer:
 
         self.httpd = http.server.ThreadingHTTPServer(("127.0.0.1", 0), Handler)
         self.base = "http://127.0.0.1:%d" % self.httpd.server_address[1]
+        # a loopback port nobody listens on: connections to it are refused
+        probe = socket.socket()
+        probe.bind(("127.0.0.1", 0))
+        self.refused_base = "http://127.0.0.1:%d" % probe.getsockname()[1]
+        probe.close()
         self.thread = threading.Thread(target=self.httpd.serve_forever, daemon=True)
         self.thread.start()
 
@@ -105,7 +124,7 @@ class FixtureServer:
         self.httpd.server_close()
 
     def resolver(self):
-        base = self.base
+        base, refused = self.base, self.refused_base
 
         def resolve(url):
             m = ARCHIVE_RE.match(url)
@@ -116,6 +135,8 @@ class FixtureServer:
                 path = path or "/"
                 if path == "/":
                     path = "/home-then.html" if ts.startswith("2025") else "/home-now.html"
+                if path.startswith("/refused/") or path == "/main-refused.html":
+                    return refused + path
                 return base + path
             if url.startswith(base + "/"):
                 return url
@@ -257,6 +278,44 @@ class ArchiveLoadTest(RendererCase):
         res, _ = self.render(lambda r: r.load_archive(archive("throttle.html"), d, ["desktop"]))
         self.assertEqual(res["requests"]["http_429"], 12)
         self.assertTrue(res["degraded"])
+
+    def test_no_status_subrequests_count_toward_degraded(self):
+        d = self.side()
+        res, _ = self.render(lambda r: r.load_archive(archive("noresponse.html"), d, ["desktop"]),
+                             request_timeout_ms=1000)
+        self.assertIsNone(res["error"])
+        self.assertEqual(res["requests"]["http_429"], 0)
+        self.assertEqual(res["requests"]["network_errors"], 12)
+        self.assertTrue(res["degraded"])
+        self.assertIn("12 requests with no HTTP response", res["degraded_reason"])
+        failed = [e for e in self.requests_log(d) if e["failure"]]
+        self.assertTrue(all(e["status"] is None for e in failed))
+        self.assertEqual(sorted(tp.network_error_text(e["failure"]) for e in failed),
+                         ["connection refused"] * 4 + ["connection reset"] * 4 + ["timed out"] * 4)
+        self.assertEqual(tp.classify_load(res, "archive")[0], "degraded")
+
+    def test_no_status_failures_add_to_429s(self):
+        for page, total, degraded in (("mixed.html", 11, True), ("mixed-ten.html", 10, False)):
+            with self.subTest(page=page):
+                d = self.side(page)
+                res, _ = self.render(lambda r: r.load_archive(archive(page), d, ["desktop"]))
+                self.assertEqual(res["requests"]["http_429"], 5)
+                self.assertEqual(res["requests"]["network_errors"], total - 5)
+                self.assertEqual(res["degraded"], degraded)
+
+    def test_main_document_with_no_response_is_degraded_not_failed(self):
+        for page, phrase in (("main-reset.html", "connection reset"), ("main-refused.html", "connection refused"),
+                             ("main-hang.html", "timed out")):
+            with self.subTest(page=page):
+                d = self.side(page)
+                res, _ = self.render(lambda r: r.load_archive(archive(page), d, ["desktop", "mobile"]),
+                                     request_timeout_ms=1000)
+                self.assertTrue(res["error"])
+                self.assertIsNone(res["main_status"])
+                self.assertIsNone(res["facts"])
+                self.assertTrue(res["degraded"])
+                self.assertIn("main document got no HTTP response (%s)" % phrase, res["degraded_reason"])
+                self.assertEqual(tp.classify_load(res, "archive"), ("degraded", None))
 
     def test_tall_page_is_truncated_at_20000(self):
         d = self.side()

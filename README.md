@@ -70,7 +70,7 @@ open out/index.html
 
 - Candidates come from wayback-salvage `snapshots --status 200`, keeping 200 `text/html` rows. The window is +/-7 days, widened to +/-30 when that is empty, and to +/-90 only with `--wide`.
 - Nearest first; ties go to the earlier capture. `diff.md` warns when the capture is more than 7 days from the target.
-- A capture that loads as a block, challenge or outage page (suspect), or whose load is throttled (degraded), is replaced by the next candidate, up to 3 loads per side. Later candidates with the same digest as a suspect capture are skipped. Every attempt is recorded in `pack.json`.
+- A capture that loads as a block, challenge or outage page (suspect), or whose load is throttled (degraded: 429s and requests with no response), is replaced by the next candidate, up to 3 loads per side. Later candidates with the same digest as a suspect capture are skipped. Every attempt is recorded in `pack.json`.
 - now-archive uses the newest capture from 30 days before `--date` up to `--date`.
 
 ## Pack layout
@@ -91,7 +91,7 @@ open out/index.html
 
 Side status is one of `planned`, `done`, `suspect`, `blocked`, `skipped`, `failed`. A rerun redoes `planned` and `failed` sides and leaves the rest alone: `suspect` (every candidate was a block or outage page) and `blocked` (the live page served a bot wall) are recorded outcomes, and live pages are not retried after a block. `skipped` (robots.txt) is redone only with `--ignore-robots`. To force a redo, delete the pack directory. With several `--years-back` values, the now sides are loaded once and copied into the other packs.
 
-`capture.json` per side records each load: request totals (`requests`, `failed`, `aborted_budget`, `leaked`, `aborted_media`, `http_429`, `bytes`, main document status), consent clicks, the user agent, screenshot sizes and whether a full-page shot was truncated. `requests.jsonl` lists every request with its host, resource type, status, bytes and abort reason.
+`capture.json` per side records each load: request totals (`requests`, `failed`, `aborted_budget`, `leaked`, `aborted_media`, `http_429`, `network_errors` for requests that got no HTTP response, `bytes`, main document status, and `main_error` when it got no response), consent clicks, the user agent, screenshot sizes and whether a full-page shot was truncated. `requests.jsonl` lists every request with its host, resource type, status, bytes and abort reason.
 
 ## Exit codes
 
@@ -111,7 +111,7 @@ wayback-salvage's own exits 2 and 3 come through as 2 and 3. Any other wayback-s
 - Archive page loads at least `--delay` seconds apart (default 20), start to start. Do not go below 10.
 - wayback-salvage calls at least 6 s apart, start to start (each subprocess has its own limiter).
 - Per archive load: at most 4 archive subrequests in flight and 600 in total; the rest are aborted and counted. Requests to any non-archive host are aborted and counted as `leaked`, so last year's page never mixes with today's live web. Video and audio are never fetched.
-- More than 10 HTTP 429s marks an archive load degraded; three degraded loads in a row stop the run with exit 3.
+- An archive load is degraded when more than 10 of its archive requests got HTTP 429 or no HTTP response at all (connection refused, reset or timed out), counted together, or when its main document got no response. A degraded capture is replaced by the next candidate; three degraded loads in a row stop the run with exit 3.
 - Live: at most one load per host every 30 s, robots.txt honoured for `*` (`--ignore-robots` to override), no retries when blocked.
 - `--max-pages` counts page loads, archive and live. A pack with `--now-source both` and both viewports costs 2 archive loads, 2 live loads and 4 to 8 wayback-salvage calls, so a 10-page batch needs about `--max-pages 40` or two runs.
 - One Chromium, one page load at a time, Playwright's stock user agents. No stealth plugins, no spoofing, no captcha handling. A blocked live page is recorded as blocked.
