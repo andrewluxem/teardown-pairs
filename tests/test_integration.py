@@ -74,7 +74,7 @@ class FixtureServer:
                 path = urllib.parse.urlsplit(self.path).path
                 with server.lock:
                     server.paths.append(path)
-                if path.startswith("/img/reset-") or path == "/main-reset.html":
+                if path.startswith("/img/reset-") or path in ("/main-reset.html", "/reset-robots.txt"):
                     # close with RST and no response: "read ECONNRESET"
                     self.connection.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, struct.pack("ii", 1, 0))
                     self.connection.close()
@@ -86,6 +86,8 @@ class FixtureServer:
                         return self._send(200, "image/png", png_bytes(20, 20))
                     except OSError:
                         return
+                if path == "/forbidden-robots.txt":
+                    return self._send(403, "text/html", b"<h1>Access Denied</h1>")
                 if path.startswith("/img/t-"):
                     return self._send(429, "text/plain", b"slow down")
                 if path.startswith("/img/") and path.endswith(".png"):
@@ -381,9 +383,25 @@ class LiveLoadTest(RendererCase):
         self.assertEqual(png_size(os.path.join(d, "desktop-fold.png")), (1440, 900))
 
     def test_robots_fetch(self):
-        (status, text), _ = self.render(lambda r: r.fetch_robots(self.server.base + "/robots.txt"))
+        (status, text, error), _ = self.render(lambda r: r.fetch_robots(self.server.base + "/robots.txt"))
         self.assertEqual(status, 200)
         self.assertIn("Disallow: /private/", text)
+        self.assertIsNone(error)
+
+    def test_robots_fetch_reports_the_status_or_the_error(self):
+        base, refused = self.server.base, self.server.refused_base
+        for url, status, phrase in ((base + "/forbidden-robots.txt", 403, None),
+                                    (base + "/reset-robots.txt", None, "connection reset"),
+                                    (refused + "/robots.txt", None, "connection refused")):
+            with self.subTest(url=url):
+                (got, _text, error), _ = self.render(lambda r: r.fetch_robots(url))
+                self.assertEqual(got, status)
+                if phrase:
+                    self.assertEqual(tp.network_error_text(error), phrase)
+                    self.assertEqual(tp.robots_verdict(url, got, "")[1], "robots-unreachable")
+                else:
+                    self.assertIsNone(error)
+                    self.assertEqual(tp.robots_detail(got, error), "HTTP 403")
 
 
 class EndToEndTest(RendererCase):

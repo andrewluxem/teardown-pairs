@@ -611,6 +611,12 @@ def robots_verdict(url: str, status, text: str) -> tuple:
     return (True, "allowed") if rp.can_fetch("*", url) else (False, "disallowed")
 
 
+def robots_detail(status, error) -> str:
+    """What the robots.txt request got: "HTTP 403", or the error in plain
+    words ("connection reset") when there was no response."""
+    return "HTTP %d" % status if status is not None else network_error_text(error)
+
+
 # ------------------------------------------------------------ vendor map
 
 VENDOR_CATEGORIES = ("analytics", "tag management", "testing and personalisation", "reviews and UGC", "chat",
@@ -1442,12 +1448,14 @@ class Renderer:
         return res
 
     async def fetch_robots(self, url: str) -> tuple:
+        """(status, text, error): error is the first line of the exception
+        when there was no response, else None."""
         context = await self.browser.new_context()
         try:
             resp = await context.request.get(url, timeout=20000, max_redirects=5)
-            return resp.status, await resp.text()
-        except Exception:  # noqa: BLE001
-            return None, ""
+            return resp.status, await resp.text(), None
+        except Exception as e:  # noqa: BLE001
+            return None, "", _first_line(e)
         finally:
             await context.close()
 
@@ -2538,28 +2546,34 @@ class Capture:
         self.log("  %s: done (%s, %s from target)" % (side, cand["timestamp"], days(cand["distance_days"])))
 
     async def robots(self, url: str) -> tuple:
+        """(allowed, reason, record) for user agent *; record holds the
+        robots.txt URL and its HTTP status or error text."""
         key = urllib.parse.urlsplit(url).netloc
         rurl = robots_url(url)
         if key not in self.robots_cache:
             await self.ensure_renderer()
-            status, text = await self.renderer.fetch_robots(rurl)
-            self.robots_cache[key] = (status, text)
-        status, text = self.robots_cache[key]
-        return robots_verdict(url, status, text)
+            self.robots_cache[key] = await self.renderer.fetch_robots(rurl)
+        status, text, error = self.robots_cache[key]
+        allowed, reason = robots_verdict(url, status, text)
+        return allowed, reason, {"robots_url": rurl, "robots_status": status, "robots_error": error}
 
     async def do_live_side(self, pack: Pack, url: str):
         sdir, state = self._reset_side(pack, "now-live")
         started = self.clock()
+        for key in ("robots_url", "robots_status", "robots_error"):
+            state.pop(key, None)
         if self.s.ignore_robots:
             state["robots"] = "ignored (--ignore-robots)"
         else:
-            allowed, reason = await self.robots(url)
+            allowed, reason, record = await self.robots(url)
             state["robots"] = reason
+            state.update(record)
             if not allowed:
+                said = "%s (%s)" % (reason, robots_detail(record["robots_status"], record["robots_error"]))
                 state.update(status="skipped", live_skipped="robots", finished_at=iso_now(),
-                             reason="robots.txt for * says %s; rerun with --ignore-robots to load anyway" % reason)
+                             reason="robots.txt for * says %s; rerun with --ignore-robots to load anyway" % said)
                 pack.save()
-                self.log("  now-live: skipped (robots.txt: %s)" % reason)
+                self.log("  now-live: skipped (robots.txt: %s)" % said)
                 return
         host = host_of(url)
         loads, blocked, results = [], None, []

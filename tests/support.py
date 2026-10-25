@@ -326,7 +326,7 @@ class FakeRenderer:
 
     async def fetch_robots(self, robots_url):
         self.robots.append(robots_url)
-        return 404, ""
+        return 404, "", None
 
     async def screenshot_html(self, html_path, out_png, width, height, fragment=""):
         self.compare_shots.append((html_path, out_png, fragment))

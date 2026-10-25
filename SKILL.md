@@ -44,7 +44,7 @@ python <repo>/scripts/teardown_pairs.py <subcommand> pages.csv [options]
 ## Rules
 
 - Never spoof user agents, add stealth plugins, solve captchas, or try any other way past a bot wall. A blocked live page is evidence that the page blocks automated browsers; report it and use the `now-archive` comparison instead.
-- `robots.txt` is honoured for live loads. Pass `--ignore-robots` only when the user decides a live capture of that brand is appropriate.
+- `robots.txt` is honoured for live loads. Pass `--ignore-robots` only when the user decides a live capture of that brand is appropriate. A skip reason with `robots-forbidden` or `robots-unreachable` means the robots.txt request itself was refused or failed (the HTTP status or error is in brackets); report it that way, not as the brand disallowing the page.
 - Never write curl, wget or ad hoc fetch code against archive.org; archive lookups go through wayback-salvage, page loads through this CLI.
 - For pages with no archive history, suggest `now-only pages.csv -o baseline` so next year has a baseline to compare against.
 - Packs can be large and hold third-party content: keep them out of git repos.
