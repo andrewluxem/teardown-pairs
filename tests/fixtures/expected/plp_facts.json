@@ -1,0 +1,12 @@
+{
+  "page.title": "Men's Jackets | Shop Test",
+  "headings.h1": ["Men's Jackets"],
+  "structured_data.types": ["ItemList", "ListItem", "BreadcrumbList"],
+  "structured_data.item_list": {"count": 24, "source": "numberOfItems"},
+  "structured_data.breadcrumbs": ["Home", "Men"],
+  "plp_heuristic.label": "heuristic",
+  "plp_heuristic.price_like_in_main": 4,
+  "plp_heuristic.price_scope": "main",
+  "plp_heuristic.filter_elements": 4,
+  "plp_heuristic.filter_labels": ["Size Color Refine", "Filter by size", "Filter by color", "Refine"]
+}

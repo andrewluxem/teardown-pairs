@@ -1,0 +1,12 @@
+{
+  "expect": "status-503",
+  "signals": {
+    "status": 503,
+    "title": "Shop Example",
+    "text": "Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. ",
+    "text_chars": 2999,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-are-you-a-robot",
+  "signals": {
+    "status": 200,
+    "title": "shop.example",
+    "text": "Are you a robot? Press and hold the button to confirm. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 524,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

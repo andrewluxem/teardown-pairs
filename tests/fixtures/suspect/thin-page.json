@@ -1,0 +1,12 @@
+{
+  "expect": "thin-page",
+  "signals": {
+    "status": 200,
+    "title": "Shop Example",
+    "text": "Loading",
+    "text_chars": 7,
+    "fold_images": 0,
+    "captcha": [],
+    "reference_block": false
+  }
+}

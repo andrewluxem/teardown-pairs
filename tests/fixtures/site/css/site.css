@@ -1,0 +1,18 @@
+body { margin: 0; font-family: Helvetica, Arial, sans-serif; font-size: 16px; color: #222; background: #fff; }
+.promo-bar { background: #1d3b2a; color: #fff; text-align: center; padding: 8px; font-size: 14px; }
+header { display: flex; justify-content: space-between; align-items: center; padding: 16px 32px; border-bottom: 1px solid #ddd; }
+header nav a { margin-left: 20px; color: #222; text-decoration: none; }
+.logo { font-weight: bold; font-size: 20px; color: #222; text-decoration: none; }
+.hero { padding: 32px; }
+.hero h1 { font-size: 48px; margin: 0 0 8px; }
+.hero .sub { font-size: 20px; margin: 0 0 16px; }
+.btn { display: inline-block; padding: 10px 18px; border: 1px solid #222; color: #222; text-decoration: none; margin-right: 8px; }
+.btn-primary { background: #222; color: #fff; }
+.hero img { display: block; margin-top: 20px; max-width: 100%; height: auto; }
+h2 { font-size: 26px; padding: 0 32px; }
+.tiles { display: flex; gap: 16px; padding: 0 32px; flex-wrap: wrap; }
+.tile img { display: block; }
+.copy { padding: 0 32px; line-height: 1.5; }
+form { padding: 16px 32px 48px; }
+footer { padding: 24px 32px; border-top: 1px solid #ddd; }
+@media (max-width: 600px) { header nav { display: none; } .hero h1 { font-size: 32px; } }

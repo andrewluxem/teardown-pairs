@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-request-unsuccessful",
+  "signals": {
+    "status": 200,
+    "title": "",
+    "text": "Request unsuccessful. Incapsula incident ID: 123000450123456789-98765. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 540,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-attention-required",
+  "signals": {
+    "status": 200,
+    "title": "Attention Required! | Cloudflare",
+    "text": "Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 469,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

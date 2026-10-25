@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Shop Test | Consent</title><link rel="stylesheet" href="css/site.css">
+<style>
+#onetrust-banner-sdk { position: fixed; bottom: 0; left: 0; right: 0; background: #eee; padding: 20px; border-top: 2px solid #222; }
+</style></head>
+<body>
+<header><a class="logo" href="./">Shop Test</a><nav><a href="men">Men</a></nav></header>
+<main><h1>Welcome</h1><img src="img/consent-hero.png" width="500" height="250" alt="">
+<p class="copy">This page carries a cookie banner modelled on OneTrust. The capture clicks its accept button,
+records that it did, presses Escape once and clicks nothing else. Enough text here to stay clear of the thin-page rule.</p>
+<button type="button" id="newsletter">Accept</button>
+</main>
+<div id="onetrust-banner-sdk"><p>We use cookies.</p>
+<button id="onetrust-reject-all-handler">Reject All</button>
+<button id="onetrust-accept-btn-handler">Accept All Cookies</button></div>
+<script>
+document.getElementById('onetrust-accept-btn-handler').addEventListener('click', function () {
+  document.getElementById('onetrust-banner-sdk').remove();
+  document.title = 'Shop Test | Consent accepted';
+});
+document.getElementById('newsletter').addEventListener('click', function () {
+  document.title = 'Shop Test | WRONG BUTTON CLICKED';
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-just-a-moment",
+  "signals": {
+    "status": 200,
+    "title": "Just a moment...",
+    "text": "Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 469,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

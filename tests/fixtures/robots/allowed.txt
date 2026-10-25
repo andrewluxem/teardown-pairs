@@ -1,0 +1,6 @@
+User-agent: *
+Disallow: /checkout
+Disallow: /account/
+
+User-agent: BadBot
+Disallow: /

@@ -1,0 +1,16 @@
+{
+  "args": [
+    "page",
+    "https://www.shop.example/",
+    "-t",
+    "20251024013522",
+    "-o",
+    "<wsout>",
+    "--json",
+    "--quiet"
+  ],
+  "exit_code": 3,
+  "stderr": "stopped: archive.org kept throttling or failing (https://web.archive.org/web/20251024013522id_/https://www.shop.example/ (last: archive.org Temporarily Offline page (HTTP 200))). Rerun the same command later; it resumes. Do not lower --delay.\n",
+  "stdout": "",
+  "wayback_salvage_version": "0.2.1"
+}

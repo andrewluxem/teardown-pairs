@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-access-denied",
+  "signals": {
+    "status": 200,
+    "title": "Access Denied",
+    "text": "Access Denied. You don't have permission to access this page on this server. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 546,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

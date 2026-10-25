@@ -1,0 +1,20 @@
+{
+  "args": [
+    "snapshots",
+    "https://www.shop.example/",
+    "--from",
+    "20200101",
+    "--to",
+    "20200131",
+    "--status",
+    "200",
+    "-o",
+    "<wsout>",
+    "--json",
+    "--quiet"
+  ],
+  "exit_code": 0,
+  "stderr": "",
+  "stdout": "[]\n",
+  "wayback_salvage_version": "0.2.1"
+}

@@ -1,0 +1,14 @@
+{
+  "expect": "captcha-px-captcha",
+  "signals": {
+    "status": 200,
+    "title": "Shop Example",
+    "text": "Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. Shop new arrivals in jackets, boots and knitwear for the whole family. Free returns on every order. ",
+    "text_chars": 2999,
+    "fold_images": 3,
+    "captcha": [
+      "px-captcha"
+    ],
+    "reference_block": false
+  }
+}

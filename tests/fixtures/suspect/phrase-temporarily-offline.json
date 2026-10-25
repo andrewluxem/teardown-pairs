@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-temporarily-offline",
+  "signals": {
+    "status": 200,
+    "title": "Temporarily Offline",
+    "text": "Internet Archive services are temporarily offline. Please check back later. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 545,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

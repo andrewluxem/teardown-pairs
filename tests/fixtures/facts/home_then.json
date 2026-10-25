@@ -1,0 +1,139 @@
+{
+  "page": {
+    "url": "https://www.shop.example/",
+    "final_url": "https://www.shop.example/",
+    "title": "Shop Example | Fall Sale",
+    "description": "Jackets, boots and more.",
+    "canonical": "https://www.shop.example/",
+    "robots": "index, follow",
+    "og_title": "Shop Example | Fall Sale",
+    "og_image": "https://www.shop.example/og/fall.jpg",
+    "lang": "en"
+  },
+  "headings": {
+    "h1": [
+      "Fall Sale"
+    ],
+    "h2": [
+      "New Arrivals",
+      "Best Sellers",
+      "Gift Guide"
+    ]
+  },
+  "nav": [
+    {
+      "text": "Women",
+      "href": "https://www.shop.example/women",
+      "visible": true
+    },
+    {
+      "text": "Men",
+      "href": "https://www.shop.example/men",
+      "visible": true
+    },
+    {
+      "text": "Kids",
+      "href": "https://www.shop.example/kids",
+      "visible": true
+    },
+    {
+      "text": "Clearance",
+      "href": "https://www.shop.example/clearance",
+      "visible": true
+    }
+  ],
+  "above_fold": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "text_blocks": [
+      {
+        "text": "Free shipping over $50",
+        "font_size": 12.0
+      },
+      {
+        "text": "Fall Sale",
+        "font_size": 48.0
+      },
+      {
+        "text": "Up to 40% off outerwear",
+        "font_size": 20.0
+      }
+    ],
+    "buttons": [
+      "Shop Women",
+      "Shop Men"
+    ],
+    "image_count": 4
+  },
+  "ctas": [
+    "Shop Women",
+    "Shop Men",
+    "Sign Up"
+  ],
+  "promos": [
+    "Free shipping over $50",
+    "Up to 40% off outerwear"
+  ],
+  "counts": {
+    "images": 42,
+    "links": 190,
+    "forms": 2,
+    "iframes": 1,
+    "price_like": 0,
+    "price_scope": "body"
+  },
+  "structured_data": {
+    "blocks": 1,
+    "errors": [],
+    "types": [
+      "Organization",
+      "WebSite"
+    ],
+    "product": null,
+    "breadcrumbs": [],
+    "item_list": null
+  },
+  "pdp_heuristic": {
+    "label": "heuristic",
+    "first_price_after_h1": null,
+    "add_to_cart": {
+      "present": false,
+      "text": null
+    },
+    "review_count_text": null
+  },
+  "plp_heuristic": {
+    "label": "heuristic",
+    "price_like_in_main": 0,
+    "price_scope": "main",
+    "filter_elements": 0,
+    "filter_labels": []
+  },
+  "signals": {
+    "text_chars": 5200,
+    "text_sample": "Shop Example | Fall Sale",
+    "captcha": [],
+    "reference_block": false
+  },
+  "martech": {
+    "source": "wayback-salvage page --json",
+    "loaded": [
+      [
+        "www.googletagmanager.com",
+        1
+      ],
+      [
+        "cdn.optimizely.com",
+        1
+      ]
+    ],
+    "mentioned": [
+      [
+        "www.facebook.com",
+        1
+      ]
+    ]
+  }
+}

@@ -1,0 +1,8 @@
+<!DOCTYPE html><html lang='en'><head><meta charset='utf-8'><title>Lazy</title></head><body><h1>Lazy images</h1><p class='copy'>Ordinary paragraph text so this fixture reads as a normal page and the thin-page signature stays quiet. It talks about jackets, boots, repairs and returns at some length.</p><div style='height:600px'><img class='lazy' data-src='img/lazy-1.png' width='300' height='200' alt=''></div><div style='height:600px'><img class='lazy' data-src='img/lazy-2.png' width='300' height='200' alt=''></div><div style='height:600px'><img class='lazy' data-src='img/lazy-3.png' width='300' height='200' alt=''></div><div style='height:600px'><img class='lazy' data-src='img/lazy-4.png' width='300' height='200' alt=''></div><div style='height:600px'><img class='lazy' data-src='img/lazy-5.png' width='300' height='200' alt=''></div><div style='height:600px'><img class='lazy' data-src='img/lazy-6.png' width='300' height='200' alt=''></div><script>
+var io = new IntersectionObserver(function (entries) {
+  entries.forEach(function (e) {
+    if (e.isIntersecting) { e.target.src = e.target.getAttribute('data-src'); io.unobserve(e.target); }
+  });
+});
+document.querySelectorAll('img.lazy').forEach(function (img) { io.observe(img); });
+</script></body></html>

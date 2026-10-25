@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-pardon-our-interruption",
+  "signals": {
+    "status": 200,
+    "title": "Pardon Our Interruption",
+    "text": "Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 469,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "expect": "akamai-reference",
+  "signals": {
+    "status": 200,
+    "title": "Error",
+    "text": "An error occurred while processing your request. Reference #18.4d2c1002.1698156000.1a2b3c4d https://errors.edgesuite.net/18.4d2c1002.1698156000.1a2b3c4d",
+    "text_chars": 152,
+    "fold_images": 0,
+    "captcha": [],
+    "reference_block": true
+  }
+}

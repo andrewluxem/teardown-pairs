@@ -1,0 +1,137 @@
+{
+  "page": {
+    "url": "https://www.shop.example/",
+    "final_url": "https://www.shop.example/",
+    "title": "Shop Example | Holiday Gifts",
+    "description": "Jackets, boots and more.",
+    "canonical": "https://www.shop.example/",
+    "robots": "index, follow",
+    "og_title": "Shop Example | Holiday Gifts",
+    "og_image": "https://www.shop.example/og/fall.jpg",
+    "lang": "en"
+  },
+  "headings": {
+    "h1": [
+      "Holiday Gifts"
+    ],
+    "h2": [
+      "Gift Guide",
+      "New Arrivals",
+      "Best Sellers"
+    ]
+  },
+  "nav": [
+    {
+      "text": "Women",
+      "href": "https://www.shop.example/women",
+      "visible": true
+    },
+    {
+      "text": "Men",
+      "href": "https://www.shop.example/men",
+      "visible": true
+    },
+    {
+      "text": "Kids",
+      "href": "https://www.shop.example/kids",
+      "visible": true
+    },
+    {
+      "text": "Gifts",
+      "href": "https://www.shop.example/gifts",
+      "visible": true
+    }
+  ],
+  "above_fold": {
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "text_blocks": [
+      {
+        "text": "Free shipping on everything",
+        "font_size": 12.0
+      },
+      {
+        "text": "Holiday Gifts",
+        "font_size": 56.0
+      }
+    ],
+    "buttons": [
+      "Shop Gifts"
+    ],
+    "image_count": 4
+  },
+  "ctas": [
+    "Shop Women",
+    "Shop Gifts",
+    "Sign Up"
+  ],
+  "promos": [
+    "Free shipping on everything"
+  ],
+  "counts": {
+    "images": 35,
+    "links": 210,
+    "forms": 2,
+    "iframes": 3,
+    "price_like": 0,
+    "price_scope": "body"
+  },
+  "structured_data": {
+    "blocks": 1,
+    "errors": [],
+    "types": [
+      "Organization",
+      "WebSite"
+    ],
+    "product": null,
+    "breadcrumbs": [],
+    "item_list": null
+  },
+  "pdp_heuristic": {
+    "label": "heuristic",
+    "first_price_after_h1": null,
+    "add_to_cart": {
+      "present": false,
+      "text": null
+    },
+    "review_count_text": null
+  },
+  "plp_heuristic": {
+    "label": "heuristic",
+    "price_like_in_main": 0,
+    "price_scope": "main",
+    "filter_elements": 0,
+    "filter_labels": []
+  },
+  "signals": {
+    "text_chars": 5200,
+    "text_sample": "Shop Example | Holiday Gifts",
+    "captcha": [],
+    "reference_block": false
+  },
+  "martech": {
+    "source": "wayback-salvage page --json",
+    "loaded": [
+      [
+        "www.googletagmanager.com",
+        1
+      ],
+      [
+        "cdn.cookielaw.org",
+        1
+      ],
+      [
+        "apps.bazaarvoice.com",
+        1
+      ]
+    ],
+    "mentioned": [
+      [
+        "www.instagram.com",
+        1
+      ]
+    ]
+  }
+}

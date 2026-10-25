@@ -1,0 +1,12 @@
+{
+  "expect": "phrase-verify-you-are-human",
+  "signals": {
+    "status": 200,
+    "title": "shop.example",
+    "text": "Verify you are human by completing the action below. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for. Please wait while we check your browser before letting you through to the site you asked for.",
+    "text_chars": 522,
+    "fold_images": 3,
+    "captcha": [],
+    "reference_block": false
+  }
+}

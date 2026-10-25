@@ -1,0 +1,18 @@
+{
+  "args": [
+    "page",
+    "https://www.shop.example/",
+    "-t",
+    "20251024013522",
+    "-n",
+    "1",
+    "-o",
+    "<wsout>",
+    "--json",
+    "--quiet"
+  ],
+  "exit_code": 2,
+  "stderr": "stopped: request cap (--max-requests 1) reached; rerun the same command to resume\n",
+  "stdout": "",
+  "wayback_salvage_version": "0.2.1"
+}

@@ -1,0 +1,12 @@
+{
+  "expect": null,
+  "signals": {
+    "status": 200,
+    "title": "Coming soon",
+    "text": "Coming soon",
+    "text_chars": 11,
+    "fold_images": 2,
+    "captcha": [],
+    "reference_block": false
+  }
+}
