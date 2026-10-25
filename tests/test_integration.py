@@ -290,6 +290,20 @@ class LiveLoadTest(RendererCase):
         self.assertTrue(res["consent"]["escape"])
         self.assertEqual(res["facts"]["page"]["title"], "Shop Test | Consent accepted")
 
+    def test_exact_text_consent_button_without_vendor_ids(self):
+        d = self.side()
+        url = self.server.base + "/consent-text.html"
+        res, _ = self.render(lambda r: r.load_live(url, d, "desktop"))
+        self.assertEqual(res["consent"]["clicked"], 'button text "Accept all"')
+        self.assertEqual(res["facts"]["page"]["title"], "Shop Test | Generic accepted")
+
+    def test_no_banner_means_nothing_is_clicked(self):
+        d = self.side()
+        url = self.server.base + "/home-now.html"
+        res, _ = self.render(lambda r: r.load_live(url, d, "desktop"))
+        self.assertIsNone(res["consent"]["clicked"])
+        self.assertTrue(res["consent"]["escape"])
+
     def test_mobile_device_profile(self):
         d = self.side()
         url = self.server.base + "/home-now.html"

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Shop Test | Generic banner</title><link rel="stylesheet" href="css/site.css">
+<style>.cookie-box { position: fixed; bottom: 0; left: 0; right: 0; background: #eee; padding: 20px; }</style></head>
+<body>
+<header><a class="logo" href="./">Shop Test</a><nav><a href="men">Men</a></nav></header>
+<main><h1>Generic consent banner</h1><img src="img/generic.png" width="500" height="250" alt="">
+<p class="copy">This banner has no vendor ids, so only the exact-text rule can find its button. The text
+"Accept all cookies and continue" must not match, and the Shop button must never be clicked.</p>
+<button type="button" id="shop">Shop now</button>
+</main>
+<div class="cookie-box"><p>Cookies help us.</p>
+<button type="button" id="long">Accept all cookies and continue</button>
+<button type="button" id="ok">Accept all</button></div>
+<script>
+document.getElementById('ok').addEventListener('click', function () {
+  document.querySelector('.cookie-box').remove();
+  document.title = 'Shop Test | Generic accepted';
+});
+document.getElementById('long').addEventListener('click', function () { document.title = 'WRONG: long text'; });
+document.getElementById('shop').addEventListener('click', function () { document.title = 'WRONG: shop clicked'; });
+</script>
+</body>
+</html>

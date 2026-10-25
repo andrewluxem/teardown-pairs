@@ -56,6 +56,25 @@ class SuspectTest(unittest.TestCase):
         sig = dict(fixtures()["normal-sale"]["signals"], title="ACCESS DENIED")
         self.assertEqual(tp.detect_suspect(sig)["signature"], "phrase-access-denied")
 
+    def test_thin_page_boundary_is_300_characters(self):
+        base = {"status": 200, "title": "Shop", "captcha": [], "reference_block": False, "fold_images": 0}
+        for chars, thin in ((150, True), (299, True), (300, False), (1200, False)):
+            with self.subTest(chars=chars):
+                sig = dict(base, text="x" * chars, text_chars=chars)
+                got = tp.detect_suspect(sig)
+                self.assertEqual(got["signature"] if got else None, "thin-page" if thin else None)
+        sig = dict(base, text="x" * 150, text_chars=150, fold_images=1)
+        self.assertIsNone(tp.detect_suspect(sig))
+
+    def test_short_page_guard_boundary(self):
+        sig = {"status": 200, "title": "Shop", "captcha": [], "reference_block": False, "fold_images": 3}
+        for chars, flagged in ((1999, True), (2000, False)):
+            with self.subTest(chars=chars):
+                text = ("Verify you are human. " + "x" * chars)[:chars]
+                got = tp.detect_suspect(dict(sig, text=text, text_chars=chars))
+                self.assertEqual(got["signature"] if got else None,
+                                 "phrase-verify-you-are-human" if flagged else None)
+
     def test_signals_from_facts(self):
         facts = basic_facts(title="Just a moment...", signals={"text_chars": 120, "text_sample": "Checking"})
         facts["above_fold"]["image_count"] = 0
