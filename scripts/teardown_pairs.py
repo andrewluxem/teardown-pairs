@@ -163,6 +163,10 @@ def weekday(d: datetime.date) -> str:
     return WEEKDAYS[d.weekday()]
 
 
+def days(n) -> str:
+    return "%d day" % n if abs(n) == 1 else "%d days" % n
+
+
 def iso_now() -> str:
     return datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -1639,8 +1643,8 @@ def build_comparison(pack: dict, then: dict, now: dict, now_side: str, source: s
             asym.append("%d requests from the now-archive replay tried to reach live hosts and were blocked."
                         % nr["leaked"])
     if distance is not None and distance > WARN_DISTANCE_DAYS:
-        warn.append("Then capture is %d days from the target date (%s vs %s); retail merchandising changes weekly "
-                    "and seasonally." % (distance, tcap.get("date"), pack.get("target_date")))
+        warn.append("Then capture is %s from the target date (%s vs %s); retail merchandising changes weekly "
+                    "and seasonally." % (days(distance), tcap.get("date"), pack.get("target_date")))
     for name, cap in (("Then", tc), ("Now-" + source, nc)):
         f = _flags(cap)
         if f["blocked"]:
@@ -1722,7 +1726,7 @@ def render_diff_md(diff: dict) -> str:
                                                                  h["requests"]["now"]["leaked"]))
         lines.append("")
         dist = h.get("distance_days")
-        lines.append("Target %s. Distance: %s." % (h["target_date"], "%d days" % dist if dist is not None else "unknown"))
+        lines.append("Target %s. Distance: %s." % (h["target_date"], days(dist) if dist is not None else "unknown"))
         lines.append("")
         lines += ["### Asymmetries", ""] + ["- %s" % s for s in c["asymmetries"]] + [""]
         if c["warnings"]:
@@ -1888,7 +1892,7 @@ def _side_caption(label, side_state, cap) -> str:
     if c.get("timestamp") and (cap or {}).get("kind") == "archive":
         bits.append("archive %s" % c["timestamp"])
     if c.get("distance_days") is not None and label == "Then":
-        bits.append("%s days from target" % c["distance_days"])
+        bits.append("%s from target" % days(c["distance_days"]))
     if not bits:
         bits.append((side_state or {}).get("status", "not captured"))
     return "%s <small>%s</small>" % (_esc(label), _esc(", ".join(bits)))
@@ -2047,7 +2051,7 @@ def render_index_html(out_dir: str, packs: list) -> str:
                     "<td class=\"thumbs\">%s</td><td>%s</td></tr>" % (
                         _esc(row.get("brand")), _esc(row.get("page_type")), _esc(row.get("label")),
                         _esc(pack.get("target_date")),
-                        _esc("%s (%s days)" % (then_cap["date"], then_cap.get("distance_days"))
+                        _esc("%s (%s)" % (then_cap["date"], days(then_cap.get("distance_days") or 0))
                              if then_cap.get("date") else "-"),
                         "<br>".join("%s: %s" % (_esc(s), _esc(st.get("status"))) for s, st in states.items()),
                         "<br>".join(_esc(x) for x in flags) or "-", "".join(thumbs), " ".join(links)))
@@ -2389,8 +2393,8 @@ class Capture:
                     pass
                 aurl = archive_url(cand["timestamp"], cand["original"] or url)
                 t0 = self.clock()
-                self.log("  %s: archive load %s (%s days from target)" % (side, cand["timestamp"],
-                                                                         cand["distance_days"]))
+                self.log("  %s: archive load %s (%s from target)" % (side, cand["timestamp"],
+                                                                    days(cand["distance_days"])))
                 res = await self.renderer.load_archive(aurl, sdir, self.s.viewports)
                 outcome, sus = classify_load(res, "archive")
                 attempt = {k: cand[k] for k in ("timestamp", "original", "date", "distance_days", "window_days",
@@ -2476,7 +2480,7 @@ class Capture:
         state.update(status="done", capture=cand, url=aurl, finished_at=iso_now(),
                      seconds=round(self.clock() - started, 1), warnings=warnings)
         pack.save()
-        self.log("  %s: done (%s, %s days from target)" % (side, cand["timestamp"], cand["distance_days"]))
+        self.log("  %s: done (%s, %s from target)" % (side, cand["timestamp"], days(cand["distance_days"])))
 
     async def robots(self, url: str) -> tuple:
         key = urllib.parse.urlsplit(url).netloc
@@ -2641,8 +2645,8 @@ def format_coverage(results, wide: bool) -> str:
         counts = "  ".join("+/-%sd: %d" % (w, n) for w, n in it["windows"].items())
         n = it["nearest"]
         if n:
-            lines.append("  %s  nearest %s (%s), %d days %s" % (
-                counts, n["timestamp"], n["capture_weekday"], n["distance_days"],
+            lines.append("  %s  nearest %s (%s), %s %s" % (
+                counts, n["timestamp"], n["capture_weekday"], days(n["distance_days"]),
                 "before" if n["offset_days"] < 0 else ("after" if n["offset_days"] > 0 else "on the day")))
         else:
             lines.append("  %s  nearest: none%s" % (counts, "" if wide else " (try --wide for +/-90 days)"))
