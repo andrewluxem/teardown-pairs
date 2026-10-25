@@ -130,6 +130,18 @@ def run(coro):
     return asyncio.run(coro)
 
 
+def quiet_main(args, deps=None):
+    """tp.main with stdout sent to a buffer (kept as quiet_main.stdout), so
+    test output stays readable."""
+    import io
+
+    deps = dict(deps or {})
+    deps.setdefault("stdout", io.StringIO())
+    code = tp.main(list(args), deps=deps)
+    quiet_main.stdout = deps["stdout"].getvalue()
+    return code
+
+
 # ------------------------------------------------------------------ fakes
 
 

@@ -6,6 +6,7 @@ import json
 import os
 import unittest
 
+from support import quiet_main  # noqa: E402
 from support import (FakeClock, FakeRenderer, FakeRunner, TempDir, VERSION_OK, record_result, run, tp,
                      ws_record)
 
@@ -177,7 +178,7 @@ class MainExitTest(unittest.TestCase):
         clock = FakeClock()
         runner.clock = clock
         with TempDir() as out:
-            return tp.main(args + ["-o", out, "--quiet", "--wayback-salvage", __file__],
+            return quiet_main(args + ["-o", out, "--quiet", "--wayback-salvage", __file__],
                            deps={"runner": runner, "renderer": FakeRenderer(clock=clock), "clock": clock.time,
                                  "sleep": clock.sleep})
 
@@ -201,7 +202,7 @@ class MainExitTest(unittest.TestCase):
     def test_missing_wayback_salvage_exits_4(self):
         clock = FakeClock()
         with TempDir() as out:
-            code = tp.main(["coverage"] + self.SINGLE + ["-o", out, "--quiet", "--wayback-salvage",
+            code = quiet_main(["coverage"] + self.SINGLE + ["-o", out, "--quiet", "--wayback-salvage",
                                                          os.path.join(out, "missing.py")],
                            deps={"runner": FakeRunner({"--version": VERSION_OK}), "clock": clock.time,
                                  "sleep": clock.sleep})

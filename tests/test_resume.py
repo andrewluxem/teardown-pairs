@@ -6,13 +6,14 @@ import json
 import os
 import unittest
 
+from support import quiet_main  # noqa: E402
 from support import (FakeClock, FakeRenderer, FakeRunner, TempDir, VERSION_OK, basic_facts, cdx_row,
                      fake_fetch, fake_page, snapshots_result, tp)
 
 URL = "https://www.shop.example/"
 PACK_REL = os.path.join("shop", "home", "home", "2025-10-24")
 SNAPS = [cdx_row("20251024013522"), cdx_row("20251023224510"), cdx_row("20251025120000"),
-         cdx_row("20251026120000")]
+         cdx_row("20251026120000"), cdx_row("20261020120000")]
 
 
 def make_runner(clock, snapshots=None):
@@ -27,7 +28,7 @@ def make_runner(clock, snapshots=None):
 def capture(out, renderer, runner, clock, *extra):
     args = ["capture", "--url", URL, "--brand", "Shop", "--type", "home", "--label", "home",
             "--date", "2026-10-24", "-o", out, "--quiet", "--wayback-salvage", __file__] + list(extra)
-    return tp.main(args, deps={"renderer": renderer, "runner": runner, "clock": clock.time, "sleep": clock.sleep})
+    return quiet_main(args, deps={"renderer": renderer, "runner": runner, "clock": clock.time, "sleep": clock.sleep})
 
 
 def read_pack(out):

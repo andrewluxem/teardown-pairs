@@ -18,6 +18,7 @@ import time
 import unittest
 import urllib.parse
 
+from support import quiet_main  # noqa: E402
 from support import (FakeRunner, TempDir, VERSION_OK, cdx_row, fake_fetch, fake_page, fixture_path, load_json,
                      png_bytes, png_size, snapshots_result, tp)
 
@@ -329,7 +330,7 @@ class EndToEndTest(RendererCase):
         settings = dict(FAST)
         renderer = tp.Renderer(tp.RenderConfig(**settings), resolve=self.server.resolver())
         out = os.path.join(self.out, "out")
-        code = tp.main(["capture", csv_path, "--date", "2026-10-24", "--delay", "0", "-o", out, "--quiet",
+        code = quiet_main(["capture", csv_path, "--date", "2026-10-24", "--delay", "0", "-o", out, "--quiet",
                         "--wayback-salvage", __file__],
                        deps={"renderer": renderer, "runner": runner, "live_gap": 0, "ws_gap": 0})
         self.assertEqual(code, 0)

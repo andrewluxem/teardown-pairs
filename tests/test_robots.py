@@ -5,6 +5,7 @@ import json
 import os
 import unittest
 
+from support import quiet_main  # noqa: E402
 from support import FakeClock, FakeRenderer, FakeRunner, TempDir, VERSION_OK, fixture_path, run, tp
 
 
@@ -64,7 +65,7 @@ class RobotsInCaptureTest(unittest.TestCase):
         runner = FakeRunner({"--version": VERSION_OK}, clock=clock)
         args = ["now-only", "--url", "https://www.shop.example/", "--brand", "Shop", "--type", "home",
                 "--label", "home", "--date", "2026-10-24", "-o", out, "--quiet"] + list(extra_args)
-        code = tp.main(args, deps={"renderer": renderer, "runner": runner, "clock": clock.time,
+        code = quiet_main(args, deps={"renderer": renderer, "runner": runner, "clock": clock.time,
                                    "sleep": clock.sleep})
         pack = os.path.join(out, "shop", "home", "home", "2026-10-24", "pack.json")
         with open(pack, encoding="utf-8") as fh:

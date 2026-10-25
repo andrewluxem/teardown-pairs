@@ -3,6 +3,7 @@
 
 import unittest
 
+from support import quiet_main  # noqa: E402
 from support import (FakeClock, FakeRenderer, FakeRunner, TempDir, VERSION_OK, cdx_row, fake_fetch, fake_page,
                      run, snapshots_result, tp)
 
@@ -72,14 +73,15 @@ class CapturePacingTest(unittest.TestCase):
     def _capture(self, rows_csv, extra=()):
         clock = FakeClock()
         renderer = FakeRenderer(clock=clock)
-        runner = FakeRunner({"--version": VERSION_OK, "snapshots": snapshots_result([cdx_row("20251024013522")]),
+        runner = FakeRunner({"--version": VERSION_OK, "snapshots": snapshots_result([cdx_row("20251024013522"),
+                                                                                  cdx_row("20261020120000")]),
                              "fetch": fake_fetch, "page": fake_page}, clock=clock)
         with TempDir() as out:
             import os
             csv_path = os.path.join(out, "pages.csv")
             with open(csv_path, "w", encoding="utf-8") as fh:
                 fh.write("brand,page_type,label,now_url\n" + rows_csv)
-            code = tp.main(["capture", csv_path, "--date", "2026-10-24", "-o", os.path.join(out, "o"), "--quiet",
+            code = quiet_main(["capture", csv_path, "--date", "2026-10-24", "-o", os.path.join(out, "o"), "--quiet",
                             "--wayback-salvage", __file__] + list(extra),
                            deps={"renderer": renderer, "runner": runner, "clock": clock.time, "sleep": clock.sleep})
         self.assertEqual(code, 0)

@@ -3,6 +3,7 @@
 import datetime
 import unittest
 
+from support import quiet_main  # noqa: E402
 from support import FakeClock, FakeRunner, TempDir, VERSION_OK, cdx_row, run, snapshots_result, tp
 
 T = datetime.date(2025, 10, 24)
@@ -162,7 +163,7 @@ class CandidateAttemptsTest(unittest.TestCase):
         renderer = FakeRenderer(clock=clock, archive_results=archive_results)
         runner = FakeRunner({"--version": VERSION_OK, "snapshots": snapshots_result(snaps or self.SNAPS),
                              "fetch": fake_fetch, "page": fake_page}, clock=clock)
-        code = tp.main(["capture", "--url", "https://www.shop.example/", "--brand", "Shop", "--type", "home",
+        code = quiet_main(["capture", "--url", "https://www.shop.example/", "--brand", "Shop", "--type", "home",
                         "--label", "home", "--date", "2026-10-24", "--now-source", "live", "-o", out, "--quiet",
                         "--wayback-salvage", __file__],
                        deps={"renderer": renderer, "runner": runner, "clock": clock.time, "sleep": clock.sleep})
