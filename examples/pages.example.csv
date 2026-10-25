@@ -1,0 +1,6 @@
+brand,page_type,label,now_url,then_url,notes
+Target,home,home,https://www.target.com/,,
+REI,home,home,https://www.rei.com/,,
+Patagonia,home,home,https://www.patagonia.com/home/,,
+# Brand,category,mens-jackets,https://www.example.com/c/mens-jackets,,replace with a real category URL and remove the leading #
+# Brand,product,example-jacket,https://www.example.com/p/example-jacket,,replace with a real product URL and remove the leading #
