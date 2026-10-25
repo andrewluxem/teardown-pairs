@@ -58,7 +58,7 @@ class ResolvePathTest(unittest.TestCase):
 
 class VersionTest(unittest.TestCase):
     def test_parse(self):
-        self.assertEqual(tp.parse_ws_version(record_result("version")[1]), (0, 2, 1))
+        self.assertEqual(tp.parse_ws_version(record_result("version")[1]), (0, 2, 2))
         self.assertEqual(tp.parse_ws_version("wayback-salvage 0.10.3\n"), (0, 10, 3))
         self.assertIsNone(tp.parse_ws_version("something else"))
 
@@ -68,18 +68,26 @@ class VersionTest(unittest.TestCase):
             return run(ws.check_version())
 
     def test_rejects_old_versions(self):
-        for text in ("wayback-salvage 0.1.0\n", "wayback-salvage 0.2.0\n", "garbage\n"):
+        for text in ("wayback-salvage 0.1.0\n", "wayback-salvage 0.2.0\n", "wayback-salvage 0.2.1\n", "garbage\n"):
             with self.subTest(text=text):
                 with self.assertRaises(tp.WaybackMissing) as cm:
                     self._check(text)
-                self.assertIn("0.2.1", str(cm.exception))
+                self.assertIn("needs 0.2.2 or later", str(cm.exception))
+
+    def test_help_and_missing_message_name_the_minimum(self):
+        self.assertIn("older than 0.2.2", tp.EXIT_CODES_HELP)
+        with TempDir() as d:
+            with self.assertRaises(tp.WaybackMissing) as cm:
+                tp.resolve_ws_path(None, {}, os.path.join(d, "home"), os.path.join(d, "repo"))
+        self.assertIn("Install 0.2.2 or later", str(cm.exception))
 
     def test_rejects_failed_version_call(self):
         with self.assertRaises(tp.WaybackMissing):
             self._check("", code=1)
 
     def test_accepts_current_and_newer(self):
-        for text in ("wayback-salvage 0.2.1\n", "wayback-salvage 0.3.0\n", "wayback-salvage 1.0.0\n"):
+        for text in ("wayback-salvage 0.2.2\n", "wayback-salvage 0.2.10\n", "wayback-salvage 0.3.0\n",
+                     "wayback-salvage 1.0.0\n"):
             with self.subTest(text=text):
                 self.assertEqual(self._check(text), text.split()[1])
 
@@ -144,9 +152,10 @@ class ParseTest(unittest.TestCase):
             self.assertEqual(argv[:6], ["images", "https://www.shop.example/", "-t", "20251024013522", "-o",
                                         "/abs/then/images"])
 
-    def test_recorded_fixtures_are_from_0_2_1(self):
-        for name in ("snapshots", "fetch", "page", "page_exit2", "page_exit3"):
-            self.assertEqual(ws_record(name)["wayback_salvage_version"], "0.2.1")
+    def test_recorded_fixtures_are_from_0_2_2(self):
+        for name in ("version", "snapshots", "snapshots_empty", "fetch", "page", "page_exit2", "page_exit3",
+                     "snapshots_exit1", "snapshots_exit3_refused"):
+            self.assertEqual(ws_record(name)["wayback_salvage_version"], "0.2.2")
 
 
 class ExitCodeTest(unittest.TestCase):
@@ -165,6 +174,25 @@ class ExitCodeTest(unittest.TestCase):
         with self.assertRaises(tp.StopRun) as cm:
             self._page(record_result("page_exit2"))
         self.assertEqual(cm.exception.code, 2)
+
+    def test_refused_connections_end_in_a_throttle_stop(self):
+        """0.2.2 retries refused connections on the 503 schedule and then
+        exits 3; that is a resumable stop here too, not a side failure."""
+        self.assertEqual(ws_record("snapshots_exit3_refused")["exit_code"], 3)
+        with TempDir() as d:
+            ws = wrapper(d, FakeRunner({"snapshots": record_result("snapshots_exit3_refused")}))
+            with self.assertRaises(tp.StopRun) as cm:
+                run(ws.snapshots("https://www.shop.example/", "20251017", "20251031"))
+        self.assertEqual(cm.exception.code, 3)
+        self.assertIn("Connection refused", str(cm.exception))
+
+    def test_recorded_exit_1_is_an_error_with_its_message(self):
+        with TempDir() as d:
+            ws = wrapper(d, FakeRunner({"snapshots": record_result("snapshots_exit1")}))
+            with self.assertRaises(tp.WaybackError) as cm:
+                run(ws.snapshots("https://www.shop.example/", "20251017", "20251031"))
+        self.assertIn("exited 1", str(cm.exception))
+        self.assertIn("nodename nor servname provided", str(cm.exception))
 
     def test_other_failures_are_errors(self):
         for result in ((1, "", "error: refusing a prefix listing on shared host\n"), (4, "", "TLS\n"),
@@ -191,6 +219,10 @@ class MainExitTest(unittest.TestCase):
                              "snapshots": (3, "", "stopped: archive.org kept throttling or failing (x)\n")})
         self.assertEqual(self._main(["coverage"] + self.SINGLE, runner), 3)
 
+    def test_capture_propagates_refused_exit_3(self):
+        runner = FakeRunner({"--version": VERSION_OK, "snapshots": record_result("snapshots_exit3_refused")})
+        self.assertEqual(self._main(["capture"] + self.SINGLE, runner), 3)
+
     def test_capture_propagates_exit_2(self):
         runner = FakeRunner({"--version": VERSION_OK, "snapshots": record_result("page_exit2")})
         self.assertEqual(self._main(["capture"] + self.SINGLE, runner), 2)
@@ -210,7 +242,7 @@ class MainExitTest(unittest.TestCase):
         self.assertEqual(code, 4)
 
 
-EXIT1_STDERR = "error: could not reach https://web.archive.org/cdx/search/cdx: nodename nor servname provided\n"
+EXIT1_STDERR = ws_record("snapshots_exit1")["stderr"]
 
 
 class SideErrorTest(unittest.TestCase):

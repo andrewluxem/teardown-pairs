@@ -17,7 +17,7 @@ Not for logins, carts, personalised states, crawling beyond the listed URLs, pix
 
 ## How to run it
 
-The CLI lives in this skill's `scripts/` directory and needs the repo's `.venv` (Python 3.12 or 3.13, Playwright pinned in `requirements.txt`, Chromium installed). It calls wayback-salvage 0.2.1 or later as a subprocess (found via `--wayback-salvage PATH`, `$WAYBACK_SALVAGE`, the installed skill, or `../wayback-salvage`).
+The CLI lives in this skill's `scripts/` directory and needs the repo's `.venv` (Python 3.12 or 3.13, Playwright pinned in `requirements.txt`, Chromium installed). It calls wayback-salvage 0.2.2 or later as a subprocess (found via `--wayback-salvage PATH`, `$WAYBACK_SALVAGE`, the installed skill, or `../wayback-salvage`).
 
 ```
 source <repo>/.venv/bin/activate
@@ -37,7 +37,7 @@ python <repo>/scripts/teardown_pairs.py <subcommand> pages.csv [options]
 
 ## Exit codes and reruns
 
-- `0` done. `1` usage or unexpected error. `4` wayback-salvage missing or older than 0.2.1. `5` Playwright or Chromium missing (the message has the install command).
+- `0` done. `1` usage or unexpected error. `4` wayback-salvage missing or older than 0.2.2. `5` Playwright or Chromium missing (the message has the install command).
 - `2` `--max-pages` reached, `3` stopped on archive throttling. Both are resumable: tell the user to rerun the same command later. Completed sides are never loaded again. Never lower `--delay` below 10 unless the user asks for it, and never retry in a loop.
 - A rerun redoes sides that are `planned` or `failed`. A side whose wayback-salvage lookup failed (anything but its exits 2 and 3) is `failed` with wayback-salvage's message as `reason` in `pack.json`; the run went on without it, and a rerun retries it. Sides that ended `suspect` (every archive candidate was a block or outage page) or `blocked` (the live page served a bot wall) are recorded outcomes, not retried; `pack.json` gives the signature.
 

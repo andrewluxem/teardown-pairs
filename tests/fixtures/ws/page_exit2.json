@@ -14,5 +14,5 @@
   "exit_code": 2,
   "stderr": "stopped: request cap (--max-requests 1) reached; rerun the same command to resume\n",
   "stdout": "",
-  "wayback_salvage_version": "0.2.1"
+  "wayback_salvage_version": "0.2.2"
 }

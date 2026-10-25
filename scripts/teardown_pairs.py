@@ -8,7 +8,7 @@ full-page and above-the-fold screenshots at desktop and mobile widths,
 facts extracted from the rendered page, a facts diff and a self-contained
 side-by-side compare page. The critique stays human.
 
-Archive lookups go through wayback-salvage 0.2.1 or later, called as a
+Archive lookups go through wayback-salvage 0.2.2 or later, called as a
 subprocess with --json. Rendering uses Playwright's Chromium with the stock
 user agent: no stealth, no spoofing, nothing that tries to get past a bot
 wall. Archive loads are paced (--delay, default 20 s start to start),
@@ -40,7 +40,8 @@ import urllib.parse
 import urllib.robotparser
 
 VERSION = "0.1.0"
-MIN_WS_VERSION = (0, 2, 1)
+MIN_WS_VERSION = (0, 2, 2)  # 0.2.2 retries refused connections and resets, ending in exit 3
+MIN_WS_TEXT = ".".join(map(str, MIN_WS_VERSION))
 
 EXIT_OK = 0
 EXIT_ERROR = 1
@@ -844,8 +845,8 @@ def resolve_ws_path(arg, env, home: str, repo: str) -> str:
     for path in candidates:
         if os.path.isfile(path):
             return path
-    raise WaybackMissing("wayback-salvage not found; tried %s. Install 0.2.1 or later, or pass --wayback-salvage "
-                         "PATH or set WAYBACK_SALVAGE." % ", ".join(candidates))
+    raise WaybackMissing("wayback-salvage not found; tried %s. Install %s or later, or pass --wayback-salvage "
+                         "PATH or set WAYBACK_SALVAGE." % (", ".join(candidates), MIN_WS_TEXT))
 
 
 def parse_ws_version(text: str):
@@ -882,8 +883,8 @@ class WaybackSalvage:
         version = parse_ws_version(out) if code == 0 else None
         if version is None or version < MIN_WS_VERSION:
             got = ".".join(map(str, version)) if version else (out.strip() or "no version (exit %s)" % code)
-            raise WaybackMissing("wayback-salvage at %s reports %s; teardown-pairs needs 0.2.1 or later"
-                                 % (self.path, got))
+            raise WaybackMissing("wayback-salvage at %s reports %s; teardown-pairs needs %s or later"
+                                 % (self.path, got, MIN_WS_TEXT))
         self.version = ".".join(map(str, version))
         return self.version
 
@@ -2676,9 +2677,9 @@ exit codes:
   1  usage or unexpected error
   2  --max-pages reached (resumable: rerun the same command)
   3  stopped on archive throttling (resumable: rerun later, do not lower --delay)
-  4  wayback-salvage missing or older than 0.2.1
+  4  wayback-salvage missing or older than %s
   5  Playwright or Chromium missing (prints the install command)
-"""
+""" % MIN_WS_TEXT
 
 
 @dataclasses.dataclass

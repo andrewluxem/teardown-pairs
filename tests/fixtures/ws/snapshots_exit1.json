@@ -1,0 +1,20 @@
+{
+  "args": [
+    "snapshots",
+    "https://www.shop.example/",
+    "--from",
+    "20251017",
+    "--to",
+    "20251031",
+    "--status",
+    "200",
+    "-o",
+    "<wsout>",
+    "--json",
+    "--quiet"
+  ],
+  "exit_code": 1,
+  "stderr": "error: https://web.archive.org/cdx/search/cdx?url=https://www.shop.example/&output=json&fl=timestamp%2Coriginal%2Cstatuscode%2Cmimetype%2Cdigest%2Clength&filter=statuscode:200&from=20251017&to=20251031: [Errno 8] nodename nor servname provided, or not known\n",
+  "stdout": "",
+  "wayback_salvage_version": "0.2.2"
+}

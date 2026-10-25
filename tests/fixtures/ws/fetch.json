@@ -14,5 +14,5 @@
   "exit_code": 0,
   "stderr": "",
   "stdout": "{\n  \"url\": \"https://www.shop.example/\",\n  \"wayback_url\": \"https://web.archive.org/web/20251024013522id_/https://www.shop.example/\",\n  \"requested_timestamp\": \"20251024013522\",\n  \"timestamp\": \"20251024013522\",\n  \"hops\": 1,\n  \"http_status\": 200,\n  \"content_type\": \"text/html; charset=utf-8\",\n  \"content_encoding\": \"identity\",\n  \"status\": \"ok\",\n  \"flags\": [],\n  \"bytes\": 1106,\n  \"sha256\": \"86a348fb00d7e55b68d599165e9f2fe84f77bc5fda17dec46ce69c542a5475f1\",\n  \"image_type\": \"\",\n  \"toolbar_injected\": false,\n  \"saved\": \"then/page.html\"\n}\n",
-  "wayback_salvage_version": "0.2.1"
+  "wayback_salvage_version": "0.2.2"
 }

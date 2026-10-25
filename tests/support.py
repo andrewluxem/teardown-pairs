@@ -201,7 +201,7 @@ def record_result(name: str) -> tuple:
     return rec["exit_code"], rec["stdout"], rec["stderr"]
 
 
-VERSION_OK = (0, "wayback-salvage 0.2.1\n", "")
+VERSION_OK = (0, "wayback-salvage 0.2.2\n", "")
 
 
 def snapshots_result(rows: list) -> tuple:

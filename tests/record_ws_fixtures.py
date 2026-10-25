@@ -19,8 +19,10 @@ from __future__ import annotations
 import io
 import json
 import os
+import socket
 import sys
 import tempfile
+import urllib.error
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "fixtures", "ws")
@@ -141,6 +143,18 @@ def main(argv) -> int:
         t.add(wsup.wb(TS, PAGE_URL), wsup.redirect(wsup.wb("20251024013600", PAGE_URL)))
         args = ["page", PAGE_URL, "-t", TS, "-n", "1", "-o", wsout, "--json", "--quiet"]
         save("page_exit2", args, *run(args, t, tmp))
+
+        # CDX connection refused on every attempt: 0.2.2 retries on the 503
+        # schedule, then stops with exit 3 (the live failure exited 1 in 0.2.1)
+        t = wsup.FakeTransport().add(wsup.is_cdx, ConnectionRefusedError(61, "Connection refused"))
+        args = ["snapshots", PAGE_URL, "--from", "20251017", "--to", "20251031", "--status", "200",
+                "-o", wsout, "--json", "--quiet"]
+        save("snapshots_exit3_refused", args, *run(args, t, tmp))
+
+        # a DNS failure that is not temporary is still exit 1, as urllib raises it
+        cause = socket.gaierror(socket.EAI_NONAME, "nodename nor servname provided, or not known")
+        t = wsup.FakeTransport().add(wsup.is_cdx, urllib.error.URLError(reason=cause))
+        save("snapshots_exit1", args, *run(args, t, tmp))
     return 0
 
 

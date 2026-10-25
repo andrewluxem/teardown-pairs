@@ -10,7 +10,7 @@ Each pack holds:
 - facts read from the rendered page (title, meta, headings, navigation, above-the-fold text and buttons, CTAs, promos, counts, structured data, PDP and PLP heuristics, loaded martech);
 - `diff.json` and `diff.md`, and a self-contained side-by-side `compare.html` with PNG composites.
 
-It ships as a CLI (`scripts/teardown_pairs.py`) and an agent skill (`SKILL.md`). Archive lookups go through [wayback-salvage](https://github.com/andrewluxem/wayback-salvage) 0.2.1 or later, called as a subprocess.
+It ships as a CLI (`scripts/teardown_pairs.py`) and an agent skill (`SKILL.md`). Archive lookups go through [wayback-salvage](https://github.com/andrewluxem/wayback-salvage) 0.2.2 or later, called as a subprocess.
 
 Not in scope: writing or scoring the critique, logins, carts, personalised states, crawling beyond the listed URLs, pixel diffs, and any bot-wall evasion.
 
@@ -27,7 +27,7 @@ python -m playwright install chromium
 python -m unittest discover -s tests             # unit and integration tests, no internet
 ```
 
-wayback-salvage 0.2.1 or later must be reachable. teardown-pairs looks in this order: `--wayback-salvage PATH`, `$WAYBACK_SALVAGE`, `~/.claude/skills/wayback-salvage/scripts/wayback_salvage.py`, then `../wayback-salvage/scripts/wayback_salvage.py` next to this repo. It runs as `python3 wayback_salvage.py ... --json`.
+wayback-salvage 0.2.2 or later must be reachable (0.2.2 retries refused connections and resets from archive.org and ends in exit 3 when they persist). teardown-pairs looks in this order: `--wayback-salvage PATH`, `$WAYBACK_SALVAGE`, `~/.claude/skills/wayback-salvage/scripts/wayback_salvage.py`, then `../wayback-salvage/scripts/wayback_salvage.py` next to this repo. It runs as `python3 wayback_salvage.py ... --json`.
 
 ## pages.csv
 
@@ -101,7 +101,7 @@ Side status is one of `planned`, `done`, `suspect`, `blocked`, `skipped`, `faile
 | 1 | usage or unexpected error |
 | 2 | `--max-pages` reached (resumable: rerun the same command) |
 | 3 | stopped on archive throttling (resumable: rerun later, do not lower `--delay`) |
-| 4 | wayback-salvage missing or older than 0.2.1 |
+| 4 | wayback-salvage missing or older than 0.2.2 |
 | 5 | Playwright or Chromium missing (prints the install command) |
 
 wayback-salvage's own exits 2 and 3 come through as 2 and 3. Any other wayback-salvage failure during a capture (an exit 1, or output that is not JSON) marks the side it happened in `failed`, with wayback-salvage's message as the reason, and the run carries on with the next side and pack; a rerun retries that side.

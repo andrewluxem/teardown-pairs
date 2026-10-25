@@ -355,7 +355,7 @@ class EndToEndTest(RendererCase):
         self.assertEqual({k: v["status"] for k, v in pack["sides"].items()},
                          {"then": "done", "now-live": "done", "now-archive": "done"})
         self.assertEqual(pack["versions"]["teardown-pairs"], tp.VERSION)
-        self.assertEqual(pack["versions"]["wayback-salvage"], "0.2.1")
+        self.assertEqual(pack["versions"]["wayback-salvage"], "0.2.2")
         for side in ("then", "now-live", "now-archive"):
             for name in ("desktop.png", "desktop-fold.png", "mobile.png", "mobile-fold.png", "facts.json",
                          "capture.json", "requests.jsonl", "page.html"):
