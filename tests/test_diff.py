@@ -215,7 +215,7 @@ class MarkdownTest(unittest.TestCase):
         sides = {"then": side("archive", "2025-10-23", 9, failed=5), "now-live": side("live", "2026-10-24")}
         sides["then"]["facts"], sides["now-live"]["facts"] = then, now
         md = tp.render_diff_md(tp.build_diff(PACK, sides))
-        self.assertNotIn("—", md)
+        self.assertNotIn("\u2014", md)
         self.assertTrue(md.startswith("# "))
         for needle in ("then-vs-now-live", "Asymmetries", "Title", "Martech", "Counts", "129.00", "99.00",
                        "then/desktop.png", "now-live/mobile-fold.png", "9 days"):

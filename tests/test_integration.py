@@ -359,7 +359,7 @@ class EndToEndTest(RendererCase):
         self.assertEqual((title["then"], title["now"]), ("Shop Test | Fall Sale", "Shop Test | Holiday Gifts"))
         with open(os.path.join(pack_dir, "diff.md"), encoding="utf-8") as fh:
             md = fh.read()
-        self.assertNotIn("—", md)
+        self.assertNotIn("\u2014", md)
         self.assertIn("Then is the archive crawler's desktop view resized to mobile width", md)
         for name in ("compare-desktop.png", "compare-mobile.png"):
             w, h = png_size(os.path.join(pack_dir, name))
