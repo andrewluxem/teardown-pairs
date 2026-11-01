@@ -19,17 +19,17 @@
 .re{animation:re 12s infinite}
 .rf{animation:rf 12s infinite}
 .rg{animation:rg 12s infinite}
-@keyframes h1{0%,28%{opacity:1}30%,98%{opacity:0}100%{opacity:1}}
-@keyframes h2{0%,30%{opacity:0}32%,58%{opacity:1}60%,100%{opacity:0}}
-@keyframes h3{0%,60%{opacity:0}62%,90%{opacity:1}92%,100%{opacity:0}}
-@keyframes r1{0%,2%{opacity:0}4%,96%{opacity:1}100%{opacity:0}}
-@keyframes r2{0%,10%{opacity:0}12%,96%{opacity:1}100%{opacity:0}}
-@keyframes rb{0%,32%{opacity:0}34%,96%{opacity:1}100%{opacity:0}}
-@keyframes rc{0%,36%{opacity:0}38%,96%{opacity:1}100%{opacity:0}}
-@keyframes rd{0%,41%{opacity:0}43%,96%{opacity:1}100%{opacity:0}}
-@keyframes re{0%,46%{opacity:0}48%,96%{opacity:1}100%{opacity:0}}
-@keyframes rf{0%,63%{opacity:0}65%,96%{opacity:1}100%{opacity:0}}
-@keyframes rg{0%,71%{opacity:0}73%,96%{opacity:1}100%{opacity:0}}
+@keyframes h1{0%,16.7%{opacity:0}18.7%,42.4%{opacity:1}44.1%,100%{opacity:0}}
+@keyframes h2{0%,16.7%,18.7%,44.1%{opacity:0}45.8%,67.8%{opacity:1}69.5%,100%{opacity:0}}
+@keyframes h3{0%,16.7%,18.7%,69.5%{opacity:0}71.2%,94.9%{opacity:1}96.6%,100%{opacity:0}}
+@keyframes r1{0%,16.7%{opacity:1}18.7%,20.4%{opacity:0}22.1%,100%{opacity:1}}
+@keyframes r2{0%,16.7%{opacity:1}18.7%,27.2%{opacity:0}28.9%,100%{opacity:1}}
+@keyframes rb{0%,16.7%{opacity:1}18.7%,45.8%{opacity:0}47.5%,100%{opacity:1}}
+@keyframes rc{0%,16.7%{opacity:1}18.7%,49.2%{opacity:0}50.9%,100%{opacity:1}}
+@keyframes rd{0%,16.7%{opacity:1}18.7%,53.4%{opacity:0}55.1%,100%{opacity:1}}
+@keyframes re{0%,16.7%{opacity:1}18.7%,57.7%{opacity:0}59.3%,100%{opacity:1}}
+@keyframes rf{0%,16.7%{opacity:1}18.7%,72.1%{opacity:0}73.7%,100%{opacity:1}}
+@keyframes rg{0%,16.7%{opacity:1}18.7%,78.8%{opacity:0}80.5%,100%{opacity:1}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important}}
 </style>
 <rect width="900" height="300" fill="#141618"/>
