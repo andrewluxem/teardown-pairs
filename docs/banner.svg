@@ -1,0 +1,82 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" width="900" height="300" role="img" aria-labelledby="t d">
+<title id="t">teardown-pairs</title>
+<desc id="d">Three panels. 1, the repo's test fixtures for a fictional store, Shop Example: the homepage then, headline Fall Sale with a Clearance nav link, and now-live, headline Holiday Gifts with a Gifts nav link. 2, the pack layout from the README: a folder per brand, page and date holding pack.json, then, now-live and now-archive captures, compare.html with desktop and mobile images, diff.json and diff.md. 3, diff.md lines the repo's renderer produces for that fixture pair: H1 added Holiday Gifts, removed Fall Sale; Navigation added Gifts, removed Clearance. Caption: It gathers evidence; the critique stays human.</desc>
+<style>
+.serif{font-family:Georgia,"Times New Roman",serif}
+.sans{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace}
+.lab{font-size:10px;letter-spacing:1.8px;font-weight:600}
+.cap{font-size:11.5px;fill:#8b9096}
+.hl{fill:none;stroke-width:1.5;opacity:0}
+.h1{animation:h1 12s infinite}
+.h2{animation:h2 12s infinite}
+.h3{animation:h3 12s infinite}
+.r1{animation:r1 12s infinite}
+.r2{animation:r2 12s infinite}
+.rb{animation:rb 12s infinite}
+.rc{animation:rc 12s infinite}
+.rd{animation:rd 12s infinite}
+.re{animation:re 12s infinite}
+.rf{animation:rf 12s infinite}
+.rg{animation:rg 12s infinite}
+@keyframes h1{0%,16.7%{opacity:0}18.7%,42.4%{opacity:1}44.1%,100%{opacity:0}}
+@keyframes h2{0%,16.7%,18.7%,44.1%{opacity:0}45.8%,67.8%{opacity:1}69.5%,100%{opacity:0}}
+@keyframes h3{0%,16.7%,18.7%,69.5%{opacity:0}71.2%,94.9%{opacity:1}96.6%,100%{opacity:0}}
+@keyframes r1{0%,16.7%{opacity:1}18.7%,20.4%{opacity:0}22.1%,100%{opacity:1}}
+@keyframes r2{0%,16.7%{opacity:1}18.7%,27.2%{opacity:0}28.9%,100%{opacity:1}}
+@keyframes rb{0%,16.7%{opacity:1}18.7%,45.8%{opacity:0}47.5%,100%{opacity:1}}
+@keyframes rc{0%,16.7%{opacity:1}18.7%,49.2%{opacity:0}50.9%,100%{opacity:1}}
+@keyframes rd{0%,16.7%{opacity:1}18.7%,53.4%{opacity:0}55.1%,100%{opacity:1}}
+@keyframes re{0%,16.7%{opacity:1}18.7%,57.7%{opacity:0}59.3%,100%{opacity:1}}
+@keyframes rf{0%,16.7%{opacity:1}18.7%,72.1%{opacity:0}73.7%,100%{opacity:1}}
+@keyframes rg{0%,16.7%{opacity:1}18.7%,78.8%{opacity:0}80.5%,100%{opacity:1}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+<rect width="900" height="300" fill="#141618"/>
+
+<text x="32" y="50" class="serif" font-size="28" fill="#e4dfd4">teardown-pairs</text>
+<text x="243" y="50" class="sans" font-size="13.5" fill="#a9adb2">Year-over-year evidence packs for brand and retailer page teardowns</text>
+
+<g>
+<text x="32" y="88" class="sans lab" fill="#a39bbd">1 · SAME PAGE, A YEAR APART</text>
+<rect x="32" y="98" width="242" height="152" rx="3" fill="#1b1e21" stroke="#2e3237"/>
+<rect class="hl h1" x="32" y="98" width="242" height="152" rx="3" stroke="#a39bbd"/>
+<text x="44" y="115" class="mono" font-size="10" fill="#8b9096">tests/fixtures/facts/home_*.json</text>
+<line x1="33" y1="123" x2="273" y2="123" stroke="#2e3237"/>
+<g class="r1"><rect x="44" y="131" width="218" height="52" rx="3" fill="#1f2225" stroke="#353a40"/><text x="52" y="145" class="mono" font-size="10" fill="#a9adb2">Shop Example | Fall Sale</text><text x="254" y="176" class="mono" font-size="10" fill="#a9adb2" text-anchor="end">then</text><g class="sans" font-size="10" fill="#a9adb2"><text x="52" y="160">Women</text><text x="92" y="160">Men</text><text x="121" y="160">Kids</text><text x="149" y="160">Clearance</text></g><text x="52" y="177" class="serif" font-size="14" fill="#e4dfd4">Fall Sale</text></g>
+<g class="r2"><rect x="44" y="190" width="218" height="52" rx="3" fill="#1f2225" stroke="#353a40"/><text x="52" y="204" class="mono" font-size="10" fill="#a9adb2">Shop Example | Holiday Gifts</text><text x="254" y="235" class="mono" font-size="10" fill="#a9adb2" text-anchor="end">now-live</text><g class="sans" font-size="10" fill="#a9adb2"><text x="52" y="219">Women</text><text x="92" y="219">Men</text><text x="121" y="219">Kids</text><text x="149" y="219">Gifts</text></g><text x="52" y="236" class="serif" font-size="14" fill="#e4dfd4">Holiday Gifts</text></g>
+<g class="rf"><rect x="49" y="165" width="66" height="17" fill="none" stroke="#c8963e" stroke-dasharray="3 2"/><rect x="49" y="224" width="92" height="17" fill="none" stroke="#93ad8c" stroke-dasharray="3 2"/></g>
+<g class="rg"><rect x="146" y="151" width="51" height="13" fill="none" stroke="#c8963e" stroke-dasharray="3 2"/><rect x="146" y="210" width="29" height="13" fill="none" stroke="#93ad8c" stroke-dasharray="3 2"/></g>
+<text x="32" y="272" class="sans cap">Last year's page is only in the archive.</text>
+</g>
+
+<g>
+<text x="294" y="88" class="sans lab" fill="#c8963e">2 · ONE EVIDENCE PACK</text>
+<rect x="294" y="98" width="316" height="152" rx="3" fill="#17191c" stroke="#2e3237"/>
+<rect class="hl h2" x="294" y="98" width="316" height="152" rx="3" stroke="#c8963e"/>
+<text x="306" y="115" class="mono" font-size="10" fill="#8b9096">README.md · Pack layout</text>
+<line x1="295" y1="123" x2="609" y2="123" stroke="#2e3237"/>
+<g class="mono" font-size="10" fill="#e4dfd4">
+<text class="rb" x="306" y="139" xml:space="preserve">&lt;out&gt;/&lt;brand&gt;/&lt;page_type&gt;/&lt;label&gt;/&lt;target-date&gt;/</text>
+<text class="rc" x="306" y="153" xml:space="preserve">  pack.json</text>
+<text class="rc" x="306" y="167" xml:space="preserve">  then/</text>
+<text class="rc" x="306" y="181" xml:space="preserve">  now-live/</text>
+<text class="rc" x="306" y="195" xml:space="preserve">  now-archive/</text>
+<text class="rd" x="306" y="209" xml:space="preserve">  compare.html</text>
+<text class="rd" x="306" y="223" xml:space="preserve">  compare-desktop.png  compare-mobile.png</text>
+<text class="re" x="306" y="237" xml:space="preserve">  diff.json  diff.md</text>
+</g>
+<text x="294" y="272" class="sans cap">Both captures and a diff, in one folder.</text>
+</g>
+
+<g>
+<text x="630" y="88" class="sans lab" fill="#93ad8c">3 · WHAT CHANGED</text>
+<rect x="630" y="98" width="238" height="152" rx="3" fill="#1b1e21" stroke="#2e3237"/>
+<rect class="hl h3" x="630" y="98" width="238" height="152" rx="3" stroke="#93ad8c"/>
+<text x="642" y="115" class="mono" font-size="10" fill="#8b9096">diff.md · then-vs-now-live</text>
+<line x1="631" y1="123" x2="867" y2="123" stroke="#2e3237"/>
+<g class="rf"><circle cx="645" cy="142.5" r="1.8" fill="#a9adb2"/><text x="653" y="146" class="sans" font-size="10.5" fill="#e4dfd4"><tspan font-weight="700">H1</tspan>: 1 added, 1 removed, 0 kept</text><g class="sans" font-size="10.5"><circle cx="667" cy="158.5" r="1.8" fill="none" stroke="#a9adb2"/><text x="675" y="162" fill="#93ad8c">added: Holiday Gifts</text><circle cx="667" cy="173.5" r="1.8" fill="none" stroke="#a9adb2"/><text x="675" y="177" fill="#c8963e">removed: Fall Sale</text></g></g>
+<g class="rg"><circle cx="645" cy="195.5" r="1.8" fill="#a9adb2"/><text x="653" y="199" class="sans" font-size="10.5" fill="#e4dfd4"><tspan font-weight="700">Navigation</tspan>: 1 added, 1 removed, 3 kept</text><g class="sans" font-size="10.5"><circle cx="667" cy="211.5" r="1.8" fill="none" stroke="#a9adb2"/><text x="675" y="215" fill="#93ad8c">added: Gifts</text><circle cx="667" cy="226.5" r="1.8" fill="none" stroke="#a9adb2"/><text x="675" y="230" fill="#c8963e">removed: Clearance</text></g></g>
+<text x="630" y="272" class="sans" font-size="11.5" fill="#93ad8c">It gathers evidence; the critique stays human.</text>
+</g>
+</svg>

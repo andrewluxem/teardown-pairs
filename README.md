@@ -1,3 +1,5 @@
+<p align="center"><img src="docs/banner.svg" alt="teardown-pairs: Year-over-year evidence packs for brand and retailer page teardowns (Wayback then vs live/archive now)"></p>
+
 # teardown-pairs
 
 Year-over-year evidence packs for page teardowns. For each brand or retailer homepage, category page (PLP) or product page, teardown-pairs puts the archive capture nearest the same date one or more years back next to the page today, and records what changed. It gathers evidence; the critique stays human.
