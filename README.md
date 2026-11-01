@@ -1,4 +1,4 @@
-<p align="center"><img src="assets/banner.svg" alt="teardown-pairs: Year-over-year evidence packs for brand and retailer page teardowns (Wayback then vs live/archive now)" width="100%"></p>
+<p align="center"><img src="docs/banner.svg" alt="teardown-pairs: Year-over-year evidence packs for brand and retailer page teardowns (Wayback then vs live/archive now)"></p>
 
 # teardown-pairs
 
